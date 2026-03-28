@@ -58,6 +58,24 @@
         .auth-loading { display:none; color:var(--text-sub); font-size:13px; margin-top:16px; }
         .auth-error { display:none; color:#e74c3c; font-size:12px; margin-top:12px; padding:8px; background:#fdf0ef; border-radius:8px; }
 
+        /* ===== NAME PICKER ===== */
+        .name-screen { position:fixed; inset:0; background:var(--bg); z-index:510; display:none; justify-content:center; align-items:center; padding:20px; }
+        .name-screen.show { display:flex; }
+        .name-card { background:var(--card); border-radius:24px; padding:36px 28px; max-width:360px; width:100%; text-align:center; box-shadow:0 12px 40px var(--card-shadow); }
+        .name-card h2 { color:var(--deep-green); font-size:18px; margin:0 0 6px; text-transform:none; letter-spacing:0; }
+        .name-card p { color:var(--text-sub); font-size:13px; margin:0 0 20px; }
+        .name-input { width:100%; padding:14px 16px; border:2px solid var(--border); border-radius:12px; font-family:'Quicksand',sans-serif; font-size:15px; font-weight:600; color:var(--text); background:var(--card); text-align:center; outline:none; transition:border-color 0.2s; }
+        .name-input:focus { border-color:var(--deep-green); }
+        .name-input::placeholder { color:var(--text-muted); font-weight:500; }
+        .name-save-btn { margin-top:16px; width:100%; padding:14px; border:none; border-radius:12px; background:linear-gradient(135deg,var(--deep-green),var(--deep-green-dark)); color:white; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; cursor:pointer; transition:transform 0.15s; }
+        .name-save-btn:active { transform:scale(0.97); }
+        .name-save-btn:disabled { opacity:0.5; cursor:default; }
+        .name-hint { font-size:11px; color:var(--text-muted); margin-top:10px; }
+
+        /* Profile edit name */
+        .profile-name-row { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:2px; }
+        .edit-name-btn { background:none; border:none; cursor:pointer; font-size:14px; color:var(--text-muted); padding:4px; }
+
         /* ===== CARDS ===== */
         .card { max-width:500px; margin:0 auto 10px; background:var(--card); border-radius:14px; padding:14px 16px; box-shadow:0 2px 12px var(--card-shadow); transition: background 0.3s, box-shadow 0.3s; }
 
@@ -226,6 +244,18 @@
     </div>
 </div>
 
+<!-- NAME PICKER (after first login) -->
+<div class="name-screen" id="nameScreen">
+    <div class="name-card">
+        <div style="font-size:48px;margin-bottom:12px">&#9997;&#65039;</div>
+        <h2>Hosgeldiniz!</h2>
+        <p>Skor tablosunda gorunecek adinizi secin</p>
+        <input type="text" class="name-input" id="nameInput" placeholder="Adinizi yazin..." maxlength="20" autocomplete="off">
+        <button class="name-save-btn" id="nameSaveBtn" disabled>Devam Et</button>
+        <div class="name-hint">Bu isim diger katilimcilara gorunecek</div>
+    </div>
+</div>
+
 <!-- PROGRAM VIEW -->
 <div id="programView">
     <div class="card no-print">
@@ -263,7 +293,10 @@
 <div id="profileView" style="display:none">
     <div class="profile-card">
         <div id="profileAvatarContainer"></div>
-        <div class="profile-name" id="profileName">-</div>
+        <div class="profile-name-row">
+            <div class="profile-name" id="profileName">-</div>
+            <button class="edit-name-btn" id="btnEditName" title="Ismi degistir">&#9998;&#65039;</button>
+        </div>
         <div class="profile-email" id="profileEmail">-</div>
         <div class="stats-grid">
             <div class="stat-box"><div class="stat-value" id="profileCompleted">0</div><div class="stat-label">Tamamlanan</div></div>
@@ -338,6 +371,24 @@ if ('serviceWorker' in navigator) {
 function isIos(){return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())}
 function isInStandaloneMode(){return ('standalone' in window.navigator && window.navigator.standalone)||window.matchMedia('(display-mode: standalone)').matches}
 function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+
+// ===== NAME INPUT =====
+const nameInput = document.getElementById('nameInput');
+const nameSaveBtn = document.getElementById('nameSaveBtn');
+nameInput.addEventListener('input', () => { nameSaveBtn.disabled = nameInput.value.trim().length < 2; });
+nameSaveBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (name.length >= 2 && window.saveDisplayName) window.saveDisplayName(name);
+});
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !nameSaveBtn.disabled) nameSaveBtn.click(); });
+
+// Edit name from profile
+document.getElementById('btnEditName').addEventListener('click', () => {
+    const ns = document.getElementById('nameScreen');
+    nameInput.value = document.getElementById('profileName').textContent;
+    nameSaveBtn.disabled = false;
+    ns.classList.add('show');
+});
 
 // ===== DARK MODE =====
 function applyTheme(dark) {
@@ -507,30 +558,66 @@ document.getElementById('googleSignIn').addEventListener('click',async()=>{
 
 document.getElementById('btnSignOut').addEventListener('click',async()=>{await signOut(auth);currentUser=null;document.getElementById('authScreen').classList.remove('hidden')});
 
+let customDisplayName = null;
+
 onAuthStateChanged(auth,async user=>{
-    if(user){currentUser=user;document.getElementById('authScreen').classList.add('hidden');await initUserData(user);startLeaderboard();updateUserProfile(user)}
-    else{currentUser=null;document.getElementById('authScreen').classList.remove('hidden')}
+    if(user){
+        currentUser=user;
+        document.getElementById('authScreen').classList.add('hidden');
+        const isNew = await initUserData(user);
+        startLeaderboard();
+        if(isNew){
+            // Show name picker for new users
+            document.getElementById('nameInput').value = user.displayName || '';
+            document.getElementById('nameSaveBtn').disabled = !(user.displayName && user.displayName.length >= 2);
+            document.getElementById('nameScreen').classList.add('show');
+        } else {
+            updateUserProfileUI();
+        }
+    } else {
+        currentUser=null;
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('nameScreen').classList.remove('show');
+    }
 });
 
 async function initUserData(user){
     try{
         const ref=doc(db,'users',user.uid),snap=await getDoc(ref);
         if(!snap.exists()){
+            // New user - migrate localStorage, will save name after name picker
             const days=[];for(let i=1;i<=120;i++)if(localStorage.getItem(`day-${i}`)==='true')days.push(i);
             await setDoc(ref,{displayName:user.displayName||'Anonim',photoURL:user.photoURL||null,completedDays:days,totalCompleted:days.length,currentStreak:calcStreak(days),longestStreak:calcLongestStreak(days),lastActive:serverTimestamp(),createdAt:serverTimestamp()});
+            customDisplayName = user.displayName || 'Anonim';
+            return true; // is new user
         }else{
-            const data=snap.data();for(let i=1;i<=120;i++)localStorage.removeItem(`day-${i}`);
+            const data=snap.data();
+            customDisplayName = data.displayName || user.displayName || 'Anonim';
+            for(let i=1;i<=120;i++)localStorage.removeItem(`day-${i}`);
             for(const d of(data.completedDays||[]))localStorage.setItem(`day-${d}`,'true');
             refreshAllRows();updateProgress();
+            return false;
         }
-    }catch(e){console.error('Init:',e)}
+    }catch(e){console.error('Init:',e);return false}
 }
 
-function updateUserProfile(user){
-    document.getElementById('profileName').textContent=user.displayName||'Anonim';
-    document.getElementById('profileEmail').textContent=user.email||'';
+// Save display name (called from main script)
+window.saveDisplayName = async function(name) {
+    if(!currentUser) return;
+    customDisplayName = name;
+    try {
+        await updateDoc(doc(db,'users',currentUser.uid), { displayName: name });
+    } catch(e) { console.error('Name save:',e); }
+    document.getElementById('nameScreen').classList.remove('show');
+    updateUserProfileUI();
+};
+
+function updateUserProfileUI(){
+    const name = customDisplayName || currentUser?.displayName || 'Anonim';
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('profileEmail').textContent = currentUser?.email || '';
     const c=document.getElementById('profileAvatarContainer');
-    c.innerHTML=user.photoURL?`<img class="profile-avatar" src="${user.photoURL}" referrerpolicy="no-referrer">`:'<div class="profile-avatar-placeholder">&#128100;</div>';
+    c.innerHTML=currentUser?.photoURL?`<img class="profile-avatar" src="${currentUser.photoURL}" referrerpolicy="no-referrer">`:'<div class="profile-avatar-placeholder">&#128100;</div>';
 }
 
 function startLeaderboard(){
