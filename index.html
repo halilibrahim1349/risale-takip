@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Risale-i Nur Okuma Programı</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6b705c">
+    <meta name="description" content="120 Günlük Risale-i Nur Okuma Programı">
+    <link rel="manifest" href="./manifest.json">
+
+    <!-- iOS (Apple) PWA Desteği -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Risale Okuma">
+    <link rel="apple-touch-icon" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+
+    <!-- iOS Splash Screens -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-cream: #fdfaf1;
+            --deep-green: #6b705c;
+            --deep-green-dark: #4a4e3d;
+            --light-sepia: #f2ede4;
+            --success-green: #2ecc71;
+            --success-green-dark: #27ae60;
+            --text-color: #333;
+            --orange: #e67e22;
+            --orange-dark: #d35400;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg-cream);
+            margin: 0;
+            padding: 10px;
+            padding-top: calc(10px + var(--safe-top));
+            padding-bottom: calc(70px + var(--safe-bottom));
+            color: var(--text-color);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-section {
+            max-width: 500px;
+            margin: 0 auto 12px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--deep-green);
+        }
+
+        .progress-stats {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: var(--light-sepia);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-green), var(--success-green-dark));
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-percentage {
+            text-align: center;
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* ===== ACTION MENU ===== */
+        .action-menu {
+            display: flex;
+            gap: 8px;
+            max-width: 500px;
+            margin: 0 auto 12px auto;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            color: white;
+            font-size: 13px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+            flex: 1;
+            transition: transform 0.15s, opacity 0.15s;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .btn:active { transform: scale(0.96); opacity: 0.9; }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            animation: pulse 2.5s infinite;
+        }
+
+        .btn-pdf { background: linear-gradient(135deg, var(--deep-green), var(--deep-green-dark)); }
+        .btn-reset { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
+        /* ===== TABLE CONTAINER ===== */
+        .container {
+            background: #fff;
+            padding: 5px;
+            border-radius: 12px;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--deep-green);
+            margin: 10px 0;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .columns { display: flex; flex-direction: column; }
+
+        @media (min-width: 900px) {
+            .columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        }
+
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+
+        td { padding: 0; border: 0.5px solid #f0f0f0; height: 48px; vertical-align: middle; }
+
+        tr.completed td { background-color: #f0fdf4; }
+
+        .row-wrapper {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: background 0.15s;
+        }
+
+        .row-wrapper:active { background: rgba(107, 112, 92, 0.06); }
+
+        .gun-no {
+            background-color: var(--light-sepia) !important;
+            color: var(--deep-green);
+            font-weight: bold;
+            width: 42px;
+            min-width: 42px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 0.5px solid #ddd;
+            height: 100%;
+            font-size: 13px;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            padding: 0 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .book-title {
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .page-range {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .check-box-cell {
+            width: 42px;
+            min-width: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            border-left: 0.5px solid #f0f0f0;
+        }
+
+        .check-box {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ccc;
+            border-radius: 7px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        tr.completed .check-box {
+            background-color: var(--success-green);
+            border-color: var(--success-green);
+            box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
+        }
+
+        tr.completed .check-box::after { content: '\2713'; font-weight: bold; }
+
+        /* ===== BOTTOM NAV (mobile app feel) ===== */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 8px 16px;
+            padding-bottom: calc(8px + var(--safe-bottom));
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .bottom-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 12px;
+            transition: color 0.2s;
+        }
+
+        .bottom-btn.active { color: var(--deep-green); }
+        .bottom-btn-icon { font-size: 20px; }
+
+        /* ===== iOS install banner ===== */
+        .ios-banner {
+            display: none;
+            max-width: 500px;
+            margin: 0 auto 12px auto;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 12.5px;
+            color: #555;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .ios-banner strong { color: var(--deep-green); }
+        .ios-banner .close-banner {
+            display: inline-block;
+            margin-top: 8px;
+            background: var(--deep-green);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        /* ===== CONFIRM DIALOG ===== */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay.show { display: flex; }
+
+        .dialog {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .dialog h3 { margin: 0 0 8px; color: var(--text-color); font-size: 16px; }
+        .dialog p { margin: 0 0 16px; color: #888; font-size: 13px; }
+        .dialog-btns { display: flex; gap: 8px; }
+        .dialog-btns button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 13px;
+        }
+        .dialog-cancel { background: #f0f0f0; color: #666; }
+        .dialog-confirm { background: #e74c3c; color: white; }
+
+        /* ===== PRINT ===== */
+        @media print {
+            .no-print, .bottom-bar, .progress-section { display: none !important; }
+            body { padding: 0; }
+            .columns { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; }
+            td { height: 23px !important; }
+            .container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Progress Section -->
+<div class="progress-section no-print">
+    <div class="progress-header">
+        <span class="progress-title">Okuma Ilerlemeniz</span>
+        <span class="progress-stats" id="progressStats">0 / 120 gun</span>
+    </div>
+    <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-percentage" id="progressPercent">%0</div>
+</div>
+
+<!-- iOS Install Banner -->
+<div class="ios-banner no-print" id="iosBanner">
+    <strong>Ana Ekrana Eklemek Icin:</strong><br>
+    Alttaki <strong>Paylas</strong> butonuna basin, sonra<br>
+    <strong>"Ana Ekrana Ekle"</strong> secenegine dokunun.
+    <br>
+    <button class="close-banner" onclick="closeIosBanner()">Anladim</button>
+</div>
+
+<!-- Action Buttons -->
+<div class="action-menu no-print">
+    <button id="installBtn" class="btn btn-add" style="display:none">Ana Ekrana Ekle</button>
+    <button class="btn btn-pdf" onclick="window.print()">PDF Cikti Al</button>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <h2>120 Gunluk Risale-i Nur Okuma Programi</h2>
+    <div class="columns" id="gridContainer"></div>
+</div>
+
+<!-- Reset Confirmation Dialog -->
+<div class="overlay" id="resetOverlay">
+    <div class="dialog">
+        <h3>Ilerlemeyi Sifirla</h3>
+        <p>Tum okuma ilerlemeniz silinecek. Bu islem geri alinamaz.</p>
+        <div class="dialog-btns">
+            <button class="dialog-cancel" onclick="closeResetDialog()">Vazgec</button>
+            <button class="dialog-confirm" onclick="confirmReset()">Sifirla</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Navigation Bar -->
+<div class="bottom-bar no-print">
+    <button class="bottom-btn active" onclick="scrollToTop()">
+        <span class="bottom-btn-icon">&#128214;</span>
+        <span>Program</span>
+    </button>
+    <button class="bottom-btn" onclick="scrollToToday()">
+        <span class="bottom-btn-icon">&#128197;</span>
+        <span>Bugun</span>
+    </button>
+    <button class="bottom-btn" onclick="showResetDialog()">
+        <span class="bottom-btn-icon">&#128260;</span>
+        <span>Sifirla</span>
+    </button>
+</div>
+
+<script>
+    // ===== SERVICE WORKER REGISTRATION =====
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW registered:', reg.scope))
+                .catch(err => console.log('SW registration failed:', err));
+        });
+    }
+
+    // ===== PWA INSTALL HANDLING =====
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    // Android / Chrome install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
+
+    window.addEventListener('appinstalled', () => {
+        installBtn.style.display = 'none';
+        deferredPrompt = null;
+    });
+
+    // iOS detection and banner
+    function isIos() {
+        return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+    }
+
+    function isInStandaloneMode() {
+        return ('standalone' in window.navigator) && window.navigator.standalone;
+    }
+
+    if (isIos() && !isInStandaloneMode() && !localStorage.getItem('iosBannerClosed')) {
+        document.getElementById('iosBanner').style.display = 'block';
+    }
+
+    function closeIosBanner() {
+        document.getElementById('iosBanner').style.display = 'none';
+        localStorage.setItem('iosBannerClosed', 'true');
+    }
+
+    // ===== READING SCHEDULE =====
+    const books = [
+        { name: "SOZLER", pages: 792 },
+        { name: "BARLA LAHIKASI", pages: 384 },
+        { name: "MEKTUBAT", pages: 524 },
+        { name: "KASTAMONU LAHIKASI", pages: 268 },
+        { name: "LEM'ALAR", pages: 450 },
+        { name: "EMIRDAG LAHIKASI-1", pages: 288 },
+        { name: "EMIRDAG LAHIKASI-2", pages: 247 },
+        { name: "SUALAR", pages: 764 }
+    ];
+
+    let schedule = [];
+    books.forEach(book => {
+        const days = Math.floor(book.pages / 30) || 1;
+        const base = Math.floor(book.pages / days);
+        const extra = book.pages % days;
+        let start = 1;
+        for (let i = 0; i < days; i++) {
+            const daily = base + (i < extra ? 1 : 0);
+            let end = start + daily - 1;
+            if (i === days - 1) end = book.pages;
+            schedule.push({ name: book.name, range: `${start}-${end}` });
+            start = end + 1;
+        }
+    });
+
+    while (schedule.length < 120) schedule.push({ name: "TEFEKKUR / DUA", range: "Serbest Okuma" });
+    if (schedule.length > 120) schedule = schedule.slice(0, 120);
+
+    // ===== RENDER TABLE =====
+    const container = document.getElementById('gridContainer');
+
+    for (let i = 0; i < 4; i++) {
+        const col = document.createElement('div');
+        const table = document.createElement('table');
+        const tbody = document.createElement('tbody');
+
+        for (let j = i * 30; j < (i + 1) * 30; j++) {
+            const data = schedule[j];
+            const realDay = j + 1;
+            const rowId = `day-${realDay}`;
+            const isDone = localStorage.getItem(rowId) === 'true';
+
+            const tr = document.createElement('tr');
+            tr.id = rowId;
+            if (isDone) tr.classList.add('completed');
+
+            const td = document.createElement('td');
+            td.innerHTML = `
+                <div class="row-wrapper">
+                    <div class="gun-no">${realDay}</div>
+                    <div class="content-area">
+                        <span class="book-title">${data.name}</span>
+                        <span class="page-range">${data.range}</span>
+                    </div>
+                    <div class="check-box-cell"><div class="check-box"></div></div>
+                </div>`;
+
+            td.addEventListener('click', () => toggleDay(rowId));
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+
+        table.appendChild(tbody);
+        col.appendChild(table);
+        container.appendChild(col);
+    }
+
+    // ===== TOGGLE DAY =====
+    function toggleDay(id) {
+        const el = document.getElementById(id);
+        const newState = !el.classList.contains('completed');
+        el.classList.toggle('completed', newState);
+        localStorage.setItem(id, newState);
+        updateProgress();
+
+        // Haptic feedback on supported devices
+        if (navigator.vibrate) navigator.vibrate(30);
+    }
+
+    // ===== PROGRESS =====
+    function updateProgress() {
+        let count = 0;
+        for (let i = 1; i <= 120; i++) {
+            if (localStorage.getItem(`day-${i}`) === 'true') count++;
+        }
+        const pct = Math.round((count / 120) * 100);
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressStats').textContent = `${count} / 120 gun`;
+        document.getElementById('progressPercent').textContent = `%${pct}`;
+    }
+
+    updateProgress();
+
+    // ===== NAVIGATION =====
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function scrollToToday() {
+        // Find first uncompleted day
+        for (let i = 1; i <= 120; i++) {
+            if (localStorage.getItem(`day-${i}`) !== 'true') {
+                const el = document.getElementById(`day-${i}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    el.style.outline = '2px solid var(--orange)';
+                    setTimeout(() => el.style.outline = '', 2000);
+                }
+                return;
+            }
+        }
+        // All done
+        scrollToTop();
+    }
+
+    // ===== RESET =====
+    function showResetDialog() {
+        document.getElementById('resetOverlay').classList.add('show');
+    }
+
+    function closeResetDialog() {
+        document.getElementById('resetOverlay').classList.remove('show');
+    }
+
+    function confirmReset() {
+        for (let i = 1; i <= 120; i++) {
+            localStorage.removeItem(`day-${i}`);
+            const el = document.getElementById(`day-${i}`);
+            if (el) el.classList.remove('completed');
+        }
+        updateProgress();
+        closeResetDialog();
+    }
+
+    // Close dialog on overlay click
+    document.getElementById('resetOverlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeResetDialog();
+    });
+</script>
+</body>
+</html>
