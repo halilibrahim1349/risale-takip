@@ -574,6 +574,23 @@ getRedirectResult(auth).catch(()=>{});
 let customDisplayName = null;
 let pendingAnonName = null;
 
+// ===== DEVICE LOCK: one account per device =====
+function showAuthError(msg) {
+    document.getElementById('authLoading').style.display='none';
+    document.getElementById('authError').style.display='block';
+    document.getElementById('authError').textContent=msg;
+}
+
+function isDeviceLocked() {
+    // If someone is already registered on this device and didn't sign out, block new accounts
+    const lockedUid = localStorage.getItem('deviceUid');
+    if (lockedUid && (!auth.currentUser || auth.currentUser.uid !== lockedUid)) {
+        // There was a user on this device but Firebase session expired - try to restore
+        return false; // Let Firebase auto-restore the session
+    }
+    return false;
+}
+
 // ===== ANONYMOUS LOGIN =====
 window.doAnonLogin = async function(name) {
     document.getElementById('authLoading').style.display='block';
@@ -583,17 +600,13 @@ window.doAnonLogin = async function(name) {
         const nameQuery = query(collection(db,'users'), where('displayName','==',name));
         const existing = await getDocs(nameQuery);
         if (!existing.empty) {
-            document.getElementById('authLoading').style.display='none';
-            document.getElementById('authError').style.display='block';
-            document.getElementById('authError').textContent='Bu kullanici adi alinmis. Baska bir isim deneyin.';
+            showAuthError('Bu kullanici adi alinmis. Baska bir isim deneyin.');
             return;
         }
         pendingAnonName = name;
         await signInAnonymously(auth);
     } catch(e) {
-        document.getElementById('authLoading').style.display='none';
-        document.getElementById('authError').style.display='block';
-        document.getElementById('authError').textContent='Giris basarisiz. Tekrar deneyin.';
+        showAuthError('Giris basarisiz. Tekrar deneyin.');
     }
 };
 
@@ -601,7 +614,7 @@ window.doAnonLogin = async function(name) {
 document.getElementById('googleSignIn').addEventListener('click',async()=>{
     document.getElementById('authLoading').style.display='block';document.getElementById('authError').style.display='none';
     try{if(isInStandaloneMode()&&isIos())await signInWithRedirect(auth,provider);else await signInWithPopup(auth,provider)}
-    catch(e){document.getElementById('authLoading').style.display='none';document.getElementById('authError').style.display='block';document.getElementById('authError').textContent='Giris basarisiz. Tekrar deneyin.'}
+    catch(e){showAuthError('Giris basarisiz. Tekrar deneyin.')}
 });
 
 // ===== LINK GOOGLE TO ANONYMOUS =====
@@ -613,8 +626,9 @@ document.getElementById('btnLinkGoogle').addEventListener('click',async()=>{
         if(isInStandaloneMode()&&isIos()) { await linkWithRedirect(currentUser,provider); return; }
         else result = await linkWithPopup(currentUser,provider);
         currentUser = result.user;
-        // Clear anon UID from localStorage since account is now Google-linked
+        // Update device lock to new linked UID
         localStorage.removeItem('anonUid');
+        localStorage.setItem('deviceUid', currentUser.uid);
         updateUserProfileUI();
     }catch(e){
         console.error('Link error:',e);
@@ -629,8 +643,9 @@ document.getElementById('btnLinkGoogle').addEventListener('click',async()=>{
 document.getElementById('btnSignOut').addEventListener('click',async()=>{
     if(currentUser?.isAnonymous){
         if(!confirm('Anonim hesapsiniz! Cikis yaparsaniz bu hesaba bir daha erisilemez. Devam etmek istiyor musunuz?')) return;
-        localStorage.removeItem('anonUid');
     }
+    localStorage.removeItem('anonUid');
+    localStorage.removeItem('deviceUid');
     await signOut(auth);
     currentUser=null;
     document.getElementById('authScreen').classList.remove('hidden');
@@ -639,10 +654,27 @@ document.getElementById('btnSignOut').addEventListener('click',async()=>{
 // ===== AUTH STATE =====
 onAuthStateChanged(auth,async user=>{
     if(user){
+        // Check if this device already has a DIFFERENT user registered
+        const deviceUid = localStorage.getItem('deviceUid');
+        if(deviceUid && deviceUid !== user.uid) {
+            // Different user trying to login on same device
+            // If the new login is Google and old was anon, allow it (upgrade)
+            // If both are different accounts, warn and sign out the new one
+            const oldRef = doc(db,'users',deviceUid);
+            const oldSnap = await getDoc(oldRef).catch(()=>null);
+            if(oldSnap && oldSnap.exists()) {
+                // Old account still exists - block duplicate
+                await signOut(auth);
+                showAuthError('Bu cihazda zaten bir hesap var. Once mevcut hesabinizdan cikis yapin.');
+                return;
+            }
+            // Old account was deleted or doesn't exist, allow new login
+        }
         currentUser=user;
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('authLoading').style.display='none';
-        // Store anon UID so same device reuses the same account
+        // Lock this device to this user
+        localStorage.setItem('deviceUid', user.uid);
         if(user.isAnonymous) localStorage.setItem('anonUid', user.uid);
         await initUserData(user);
         startLeaderboard();
