@@ -360,7 +360,12 @@ const CIRC = 2 * Math.PI * 55; // ~345.6 for kulliyat ring
 const BCIRC = 2 * Math.PI * 19; // ~119.4 for book mini ring
 
 // ===== SERVICE WORKER =====
-if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+if('serviceWorker' in navigator)window.addEventListener('load',async()=>{
+// Force update: unregister old, register fresh
+const regs=await navigator.serviceWorker.getRegistrations();
+for(const r of regs)await r.unregister();
+await navigator.serviceWorker.register('./sw.js');
+});
 
 // ===== HELPERS =====
 function isIos(){return/iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())}
