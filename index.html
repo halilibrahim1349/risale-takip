@@ -334,7 +334,6 @@
         tr.completed .check-box::after { content: '\2713'; font-weight: bold; }
 
         /* ===== LEADERBOARD ===== */
-        #leaderboardView { display: none; }
 
         .lb-header {
             max-width: 500px;
@@ -433,7 +432,6 @@
         }
 
         /* ===== PROFILE ===== */
-        #profileView { display: none; }
 
         .profile-card {
             max-width: 500px;
@@ -719,7 +717,7 @@
 </div>
 
 <!-- ===== LEADERBOARD VIEW ===== -->
-<div id="leaderboardView">
+<div id="leaderboardView" style="display:none">
     <div class="lb-header">
         <span class="lb-header-title">&#127942; Skor Tablosu</span>
         <span class="lb-header-count" id="lbCount">0 katilimci</span>
@@ -730,7 +728,7 @@
 </div>
 
 <!-- ===== PROFILE VIEW ===== -->
-<div id="profileView">
+<div id="profileView" style="display:none">
     <div class="profile-card">
         <div id="profileAvatarContainer"></div>
         <div class="profile-name" id="profileName">-</div>
@@ -1001,9 +999,9 @@
 
     // ===== TAB NAVIGATION =====
     function showTab(tab) {
-        document.getElementById('programView').style.display = tab === 'program' ? '' : 'none';
-        document.getElementById('leaderboardView').style.display = tab === 'leaderboard' ? '' : 'none';
-        document.getElementById('profileView').style.display = tab === 'profile' ? '' : 'none';
+        document.getElementById('programView').style.display = tab === 'program' ? 'block' : 'none';
+        document.getElementById('leaderboardView').style.display = tab === 'leaderboard' ? 'block' : 'none';
+        document.getElementById('profileView').style.display = tab === 'profile' ? 'block' : 'none';
         document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
         const tabBtn = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
         if (tabBtn) tabBtn.classList.add('active');
