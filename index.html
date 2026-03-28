@@ -548,7 +548,7 @@ function updateProfileView(){
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js';
 import{getAuth,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,onAuthStateChanged,signOut,signInAnonymously,linkWithPopup,linkWithRedirect}from'https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js';
-import{getFirestore,doc,getDoc,setDoc,updateDoc,collection,query,orderBy,onSnapshot,serverTimestamp}from'https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js';
+import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,query,orderBy,where,getDocs,onSnapshot,serverTimestamp}from'https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js';
 
 const app=initializeApp({apiKey:"AIzaSyBKOxExDGYFj361b5FuhLWkE3ckzUhFK0E",authDomain:"risale-okuma.firebaseapp.com",projectId:"risale-okuma",storageBucket:"risale-okuma.firebasestorage.app",messagingSenderId:"288355350259",appId:"1:288355350259:web:07f41f8439414ee0276986"});
 const auth=getAuth(app),db=getFirestore(app),provider=new GoogleAuthProvider();
@@ -578,14 +578,17 @@ let pendingAnonName = null;
 window.doAnonLogin = async function(name) {
     document.getElementById('authLoading').style.display='block';
     document.getElementById('authError').style.display='none';
-    pendingAnonName = name;
     try {
-        // Check if there's already an anonymous UID stored on this device
-        const storedUid = localStorage.getItem('anonUid');
-        if (storedUid && auth.currentUser && auth.currentUser.uid === storedUid) {
-            // Already logged in with this anon account
+        // Check if this name is already taken
+        const nameQuery = query(collection(db,'users'), where('displayName','==',name));
+        const existing = await getDocs(nameQuery);
+        if (!existing.empty) {
+            document.getElementById('authLoading').style.display='none';
+            document.getElementById('authError').style.display='block';
+            document.getElementById('authError').textContent='Bu kullanici adi alinmis. Baska bir isim deneyin.';
             return;
         }
+        pendingAnonName = name;
         await signInAnonymously(auth);
     } catch(e) {
         document.getElementById('authLoading').style.display='none';
@@ -674,6 +677,14 @@ async function initUserData(user){
 // Save display name (called from main script for name edit)
 window.saveDisplayName = async function(name) {
     if(!currentUser) return;
+    // Check if name is taken by someone else
+    const nameQuery = query(collection(db,'users'), where('displayName','==',name));
+    const existing = await getDocs(nameQuery);
+    const takenByOther = !existing.empty && existing.docs.some(d => d.id !== currentUser.uid);
+    if (takenByOther) {
+        alert('Bu kullanici adi alinmis. Baska bir isim deneyin.');
+        return;
+    }
     customDisplayName = name;
     try { await updateDoc(doc(db,'users',currentUser.uid), { displayName: name }); }
     catch(e) { console.error('Name save:',e); }
