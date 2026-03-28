@@ -1,9 +1,9 @@
-const CACHE_NAME = 'risale-okuma-v1';
+const CACHE_NAME = 'risale-okuma-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  'https://fonts.googleapis.com/css2?family=Quicksand:wght@600&display=swap'
+  'https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap'
 ];
 
 // Install: cache core assets
@@ -24,8 +24,38 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch: cache-first, fallback to network
+// Fetch handler
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+
+  // NEVER cache Firebase API calls - always go to network
+  if (url.hostname.includes('googleapis.com') ||
+      url.hostname.includes('firebaseio.com') ||
+      url.hostname.includes('firestore.googleapis.com') ||
+      url.hostname.includes('identitytoolkit.googleapis.com') ||
+      url.hostname.includes('securetoken.googleapis.com') ||
+      url.hostname.includes('firebasestorage.app')) {
+    return;
+  }
+
+  // Firebase SDK from gstatic: cache after first load
+  if (url.hostname === 'www.gstatic.com' && url.pathname.includes('firebasejs')) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Everything else: cache-first with network fallback
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
@@ -35,7 +65,6 @@ self.addEventListener('fetch', event => {
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         return response;
       }).catch(() => {
-        // Offline fallback for navigation requests
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
