@@ -1,7 +1,7 @@
 {
-  "name": "Risale-i Nur Okuma Programı",
-  "short_name": "Risale Okuma",
-  "description": "120 Günlük Risale-i Nur Okuma Programı",
+  "name": "Okuma Takip",
+  "short_name": "Okuma Takip",
+  "description": "Risale-i Nur Kulliyat Okuma Takip",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
