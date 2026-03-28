@@ -354,7 +354,7 @@
 
 <script>
 // ===== CONSTANTS =====
-const PROGRAM_START = new Date(2025, 3, 15); // 15 Nisan 2025
+const PROGRAM_START = new Date(2026, 3, 15); // 15 Nisan 2026
 const TOTAL_PAGES = 3717;
 const CIRC = 2 * Math.PI * 55; // ~345.6 for kulliyat ring
 const BCIRC = 2 * Math.PI * 19; // ~119.4 for book mini ring
@@ -517,7 +517,11 @@ function distributePages(totalInput){
 
 function updateTodayCard(){
     const tc=document.getElementById('todayCard'),dn=todayNum;
-    if(dn<1){const diff=Math.ceil((PROGRAM_START-new Date())/(864e5));tc.className='today-card countdown no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">GERI SAYIM</div><div class="tc-title">Programa ${diff} gun kaldi</div><div class="tc-range">Baslangic: 15 Nisan 2025</div>`;return}
+    if(dn<1){const diff=Math.ceil((PROGRAM_START-new Date())/(864e5));const adn=getActiveDayNum(),as=schedule[Math.min(adn,120)-1],apr=getDayPages(adn),apct=as.pagesForDay>0?Math.round(apr/as.pagesForDay*100):0;
+    tc.className='today-card no-print';tc.style.display='';
+    tc.innerHTML=`<div class="tc-label">PROGRAMA ${diff} GUN KALDI (15 Nisan)</div><div class="tc-title">Gun ${adn} - ${as.name}</div><div class="tc-range">Sayfa ${as.range}${apr>0?' ('+apr+'/'+as.pagesForDay+')':''}</div><div class="tc-bar"><div class="tc-bar-fill" style="width:${apct}%"></div></div>
+    <div class="tc-input-row"><input type="number" class="tc-page-input" id="tcPageInput" placeholder="Kac sayfa okudunuz?" min="1"><button class="tc-btn tc-complete" onclick="submitTodayPages()" style="flex:none;width:auto;padding:10px 16px">Kaydet</button></div>
+    <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Gunu Tamamla</button><button class="tc-btn tc-enter" onclick="openPageSheet(${adn})">&#9998; Detayli Gir</button></div>`;return}
     if(dn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127942; Program Tamamlandi!</div><div class="tc-range">${getTotalPagesRead().toLocaleString('tr-TR')} sayfa okudunuz</div>`;return}
     // Find active day (first incomplete)
     const adn=getActiveDayNum(),s=schedule[Math.min(adn,120)-1],pr=getDayPages(adn),full=adn>120,pct=s.pagesForDay>0?Math.round(pr/s.pagesForDay*100):0;
