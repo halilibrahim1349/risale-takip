@@ -292,7 +292,7 @@
             <div class="badge-item"><div class="badge-icon" id="badge30">&#127794;</div><div class="badge-label">Fidan<br>30 gun</div></div>
             <div class="badge-item"><div class="badge-icon" id="badge60">&#127795;</div><div class="badge-label">Agac<br>60 gun</div></div>
             <div class="badge-item"><div class="badge-icon" id="badge90">&#127822;</div><div class="badge-label">Meyve<br>90 gun</div></div>
-            <div class="badge-item"><div class="badge-icon" id="badge120">&#127968;</div><div class="badge-label">Cennet<br>Bahcesi</div></div>
+            <div class="badge-item"><div class="badge-icon" id="badge120">&#127760;</div><div class="badge-label">Cennet<br>Bahcesi</div></div>
         </div></div>
         <div id="anonWarning" style="display:none;background:#fff8e1;border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:#8d6e00;line-height:1.4;text-align:left">&#9888;&#65039; <strong>Anonim hesaptesiniz.</strong> Google hesabi baglayarak verilerinizi kalici hale getirin.</div>
         <div class="profile-actions">
@@ -323,7 +323,7 @@
 
 <script>
 // ===== CONSTANTS =====
-const PROGRAM_START = new Date(2026, 3, 15); // 15 Nisan 2026
+const PROGRAM_START = null; // Baslangic tarihi yok
 const TOTAL_PAGES = 3717;
 const CIRC = 2 * Math.PI * 55; // ~345.6 for kulliyat ring
 const BCIRC = 2 * Math.PI * 19; // ~119.4 for book mini ring
@@ -340,7 +340,7 @@ await navigator.serviceWorker.register('./sw.js');
 function isIos(){return/iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())}
 function isInStandaloneMode(){return('standalone' in window.navigator&&window.navigator.standalone)||window.matchMedia('(display-mode: standalone)').matches}
 function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
-function getTodayDayNum(){const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),diff=Math.floor((today-PROGRAM_START)/(864e5));return diff+1}
+function getTodayDayNum(){return getActiveDayNum()}
 
 // ===== SCHEDULE =====
 const books=[{name:"SOZLER",pages:792},{name:"BARLA LAHIKASI",pages:384},{name:"MEKTUBAT",pages:524},{name:"KASTAMONU LAHIKASI",pages:268},{name:"LEM'ALAR",pages:450},{name:"EMIRDAG LAHIKASI-1",pages:288},{name:"EMIRDAG LAHIKASI-2",pages:247},{name:"SUALAR",pages:764}];
@@ -359,7 +359,7 @@ function getCompletedDays(){const d=[];for(let i=1;i<=120;i++)if(getDayPages(i)>
 function getBookProgress(){return books.map((b,bi)=>{let r=0;schedule.forEach((e,idx)=>{if(e.bookIndex===bi)r+=getDayPages(idx+1)});return{name:b.name,total:b.pages,read:r,pct:Math.round(r/b.pages*100)}})}
 function calcStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let k=1;for(let i=s.length-1;i>0;i--)if(s[i]-s[i-1]===1)k++;else break;return k}
 function calcLongestStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let l=1,c=1;for(let i=1;i<s.length;i++)if(s[i]-s[i-1]===1){c++;l=Math.max(l,c)}else c=1;return l}
-function getBadge(t){if(t>=120)return'\u{1F3E1}';if(t>=90)return'\u{1F34E}';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F332}';if(t>=10)return'\u{1F33F}';if(t>=1)return'\u{1F331}';return''}
+function getBadge(t){if(t>=120)return'\u{1F310}';if(t>=90)return'\u{1F34E}';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F332}';if(t>=10)return'\u{1F33F}';if(t>=1)return'\u{1F331}';return''}
 
 // ===== DARK MODE =====
 function applyTheme(d){document.documentElement.setAttribute('data-theme',d?'dark':'light');document.getElementById('metaTheme').content=d?'#1a1a2e':'#6b705c';document.getElementById('btnDark').innerHTML=d?'&#9728;&#65039; Aydinlik Mod':'&#127769; Karanlik Mod';localStorage.setItem('darkMode',d)}
@@ -444,20 +444,12 @@ function getActiveDayNum(){for(let i=1;i<=120;i++){const pr=getDayPages(i),s=sch
 
 
 function updateTodayCard(){
-    const tc=document.getElementById('todayCard'),dn=todayNum;
+    const tc=document.getElementById('todayCard');
     const adn=getActiveDayNum();
-    if(dn<1){
-        const diff=Math.ceil((PROGRAM_START-new Date())/(864e5));
-        const as=schedule[Math.min(adn,120)-1],done=adn>120;
-        tc.className='today-card no-print';tc.style.display='';
-        if(done){tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127968; Tum gunler tamamlandi!</div><div class="tc-range">Program 15 Nisan'da basliyor</div>`;return}
-        tc.innerHTML=`<div class="tc-label">PROGRAMA ${diff} GUN KALDI</div><div class="tc-title">Siradaki: Gun ${adn} - ${as.name}</div><div class="tc-range">Sayfa ${as.range}</div>
-        <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Gun ${adn}'i Tamamla</button></div>`;return}
-    if(dn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127968; Program Tamamlandi!</div><div class="tc-range">${getTotalPagesRead().toLocaleString('tr-TR')} sayfa okudunuz</div>`;return}
-    if(adn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127968; Tum gunler tamamlandi!</div>`;return}
+    if(adn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127760; Tum kulliyat tamamlandi!</div><div class="tc-range">${getTotalPagesRead().toLocaleString('tr-TR')} sayfa okudunuz</div>`;return}
     const s=schedule[adn-1];
     tc.className='today-card no-print';tc.style.display='';
-    tc.innerHTML=`<div class="tc-label">GUN ${adn}${adn===dn?' - BUGUN':adn<dn?' - GERIDE KALDIN':''}</div><div class="tc-title">${s.name}</div><div class="tc-range">Sayfa ${s.range}</div>
+    tc.innerHTML=`<div class="tc-label">SIRADAKI OKUMA - GUN ${adn}</div><div class="tc-title">${s.name}</div><div class="tc-range">Sayfa ${s.range}</div>
     <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Tamamla</button></div>`;
 }
 
@@ -594,7 +586,7 @@ function isInStandaloneMode(){return('standalone' in window.navigator&&window.na
 function getDayPages(dn){const v=localStorage.getItem(`day-${dn}`);if(!v)return 0;if(v==='true')return schedule[dn-1].pagesForDay;const n=parseInt(v);return isNaN(n)?0:Math.min(n,schedule[dn-1].pagesForDay)}
 function calcStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let k=1;for(let i=s.length-1;i>0;i--)if(s[i]-s[i-1]===1)k++;else break;return k}
 function calcLongestStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let l=1,c=1;for(let i=1;i<s.length;i++)if(s[i]-s[i-1]===1){c++;l=Math.max(l,c)}else c=1;return l}
-function getBadge(t){if(t>=120)return'\u{1F3E1}';if(t>=90)return'\u{1F34E}';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F332}';if(t>=10)return'\u{1F33F}';if(t>=1)return'\u{1F331}';return''}
+function getBadge(t){if(t>=120)return'\u{1F310}';if(t>=90)return'\u{1F34E}';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F332}';if(t>=10)return'\u{1F33F}';if(t>=1)return'\u{1F331}';return''}
 function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
 </script>
 </body>

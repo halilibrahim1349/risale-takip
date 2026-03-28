@@ -1,4 +1,4 @@
-const CACHE_NAME = 'risale-okuma-v17';
+const CACHE_NAME = 'risale-okuma-v18';
 const ASSETS = [
   './',
   './index.html',
