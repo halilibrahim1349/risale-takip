@@ -580,6 +580,12 @@ window.doAnonLogin = async function(name) {
     document.getElementById('authError').style.display='none';
     pendingAnonName = name;
     try {
+        // Check if there's already an anonymous UID stored on this device
+        const storedUid = localStorage.getItem('anonUid');
+        if (storedUid && auth.currentUser && auth.currentUser.uid === storedUid) {
+            // Already logged in with this anon account
+            return;
+        }
         await signInAnonymously(auth);
     } catch(e) {
         document.getElementById('authLoading').style.display='none';
@@ -598,22 +604,34 @@ document.getElementById('googleSignIn').addEventListener('click',async()=>{
 // ===== LINK GOOGLE TO ANONYMOUS =====
 document.getElementById('btnLinkGoogle').addEventListener('click',async()=>{
     if(!currentUser) return;
+    const oldUid = currentUser.uid;
     try{
-        if(isInStandaloneMode()&&isIos()) await linkWithRedirect(currentUser,provider);
-        else {
-            const result = await linkWithPopup(currentUser,provider);
-            currentUser = result.user;
-            updateUserProfileUI();
-        }
+        let result;
+        if(isInStandaloneMode()&&isIos()) { await linkWithRedirect(currentUser,provider); return; }
+        else result = await linkWithPopup(currentUser,provider);
+        currentUser = result.user;
+        // Clear anon UID from localStorage since account is now Google-linked
+        localStorage.removeItem('anonUid');
+        updateUserProfileUI();
     }catch(e){
         console.error('Link error:',e);
-        if(e.code==='auth/credential-already-in-use') alert('Bu Google hesabi baska bir kullaniciya bagli.');
-        else alert('Baglama basarisiz. Tekrar deneyin.');
+        if(e.code==='auth/credential-already-in-use') {
+            // Google account already has a separate user - merge data
+            alert('Bu Google hesabi zaten kayitli. Google hesabinizla giris yapin, verileriniz orada.');
+        } else alert('Baglama basarisiz. Tekrar deneyin.');
     }
 });
 
 // ===== SIGN OUT =====
-document.getElementById('btnSignOut').addEventListener('click',async()=>{await signOut(auth);currentUser=null;document.getElementById('authScreen').classList.remove('hidden')});
+document.getElementById('btnSignOut').addEventListener('click',async()=>{
+    if(currentUser?.isAnonymous){
+        if(!confirm('Anonim hesapsiniz! Cikis yaparsaniz bu hesaba bir daha erisilemez. Devam etmek istiyor musunuz?')) return;
+        localStorage.removeItem('anonUid');
+    }
+    await signOut(auth);
+    currentUser=null;
+    document.getElementById('authScreen').classList.remove('hidden');
+});
 
 // ===== AUTH STATE =====
 onAuthStateChanged(auth,async user=>{
@@ -621,6 +639,8 @@ onAuthStateChanged(auth,async user=>{
         currentUser=user;
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('authLoading').style.display='none';
+        // Store anon UID so same device reuses the same account
+        if(user.isAnonymous) localStorage.setItem('anonUid', user.uid);
         await initUserData(user);
         startLeaderboard();
         updateUserProfileUI();
