@@ -4,681 +4,221 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Risale-i Nur Okuma Programi</title>
-
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#6b705c">
+    <meta name="theme-color" content="#6b705c" id="metaTheme">
     <meta name="description" content="120 Gunluk Risale-i Nur Okuma Programi">
     <link rel="manifest" href="./manifest.json">
-
-    <!-- iOS (Apple) PWA Destegi -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Risale Okuma">
     <link rel="apple-touch-icon" href="icons/icon-152.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72.png">
-    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96.png">
-    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
     <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
-
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
-            --bg-cream: #fdfaf1;
-            --deep-green: #6b705c;
-            --deep-green-dark: #4a4e3d;
-            --light-sepia: #f2ede4;
-            --success-green: #2ecc71;
-            --success-green-dark: #27ae60;
-            --text-color: #333;
-            --orange: #e67e22;
-            --orange-dark: #d35400;
+            --bg: #fdfaf1; --card: #fff; --card-shadow: rgba(0,0,0,0.06);
+            --deep-green: #6b705c; --deep-green-dark: #4a4e3d;
+            --sepia: #f2ede4; --success: #2ecc71; --success-dark: #27ae60;
+            --text: #333; --text-sub: #888; --text-muted: #bbb;
+            --orange: #e67e22; --orange-dark: #d35400;
+            --border: #f0f0f0; --row-done: #f0fdf4;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
-
+        [data-theme="dark"] {
+            --bg: #1a1a2e; --card: #16213e; --card-shadow: rgba(0,0,0,0.3);
+            --sepia: #1a1a2e; --text: #e0e0e0; --text-sub: #8899aa; --text-muted: #556;
+            --border: #2a2a4a; --row-done: #1a2e1a;
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body {
-            font-family: 'Quicksand', sans-serif;
-            background-color: var(--bg-cream);
-            margin: 0;
-            padding: 10px;
-            padding-top: calc(10px + var(--safe-top));
+            font-family: 'Quicksand', sans-serif; background: var(--bg);
+            margin: 0; padding: 10px; padding-top: calc(10px + var(--safe-top));
             padding-bottom: calc(70px + var(--safe-bottom));
-            color: var(--text-color);
-            -webkit-font-smoothing: antialiased;
+            color: var(--text); -webkit-font-smoothing: antialiased;
+            transition: background 0.3s, color 0.3s;
         }
 
-        /* ===== AUTH SCREEN ===== */
-        .auth-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-cream);
-            z-index: 500;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .auth-screen.hidden { display: none; }
-
-        .auth-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 28px;
-            max-width: 360px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-        }
-
-        .auth-icon { font-size: 56px; margin-bottom: 12px; }
-
-        .auth-card h2 {
-            color: var(--deep-green);
-            font-size: 18px;
-            margin: 0 0 6px;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-
-        .auth-card p {
-            color: #999;
-            font-size: 13px;
-            margin: 0 0 28px;
-        }
-
+        /* ===== AUTH ===== */
+        .auth-screen { position:fixed; inset:0; background:var(--bg); z-index:500; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .auth-screen.hidden { display:none; }
+        .auth-card { background:var(--card); border-radius:24px; padding:44px 28px; max-width:360px; width:100%; text-align:center; box-shadow:0 12px 40px var(--card-shadow); }
+        .auth-icon { font-size:64px; margin-bottom:16px; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        .auth-card h2 { color:var(--deep-green); font-size:20px; margin:0 0 6px; text-transform:none; letter-spacing:0; }
+        .auth-card p { color:var(--text-sub); font-size:13px; margin:0 0 32px; }
         .btn-google {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 14px;
-            border: 1.5px solid #ddd;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            color: #333;
-            transition: all 0.2s;
+            display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px;
+            border:1.5px solid var(--border); border-radius:14px; background:var(--card); cursor:pointer;
+            font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; color:var(--text);
+            transition:all 0.2s; box-shadow:0 2px 8px var(--card-shadow);
         }
+        .btn-google:active { transform:scale(0.97); }
+        .btn-google svg { width:20px; height:20px; }
+        .auth-loading { display:none; color:var(--text-sub); font-size:13px; margin-top:16px; }
+        .auth-error { display:none; color:#e74c3c; font-size:12px; margin-top:12px; padding:8px; background:#fdf0ef; border-radius:8px; }
 
-        .btn-google:active { background: #f5f5f5; transform: scale(0.98); }
+        /* ===== CARDS ===== */
+        .card { max-width:500px; margin:0 auto 10px; background:var(--card); border-radius:14px; padding:14px 16px; box-shadow:0 2px 12px var(--card-shadow); transition: background 0.3s, box-shadow 0.3s; }
 
-        .btn-google svg { width: 20px; height: 20px; }
+        /* ===== PROGRESS ===== */
+        .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .progress-title { font-weight:700; font-size:13px; color:var(--deep-green); }
+        .progress-stats { font-size:12px; color:var(--text-sub); }
+        .progress-bar-bg { width:100%; height:10px; background:var(--sepia); border-radius:5px; overflow:hidden; }
+        .progress-bar-fill { height:100%; background:linear-gradient(90deg, var(--success), var(--success-dark)); border-radius:5px; transition:width 0.5s ease; width:0%; }
+        .progress-pct { text-align:center; font-size:11px; color:var(--text-muted); margin-top:4px; }
 
-        .auth-loading {
-            display: none;
-            color: #999;
-            font-size: 13px;
-            margin-top: 16px;
-        }
+        /* ===== NUDGE ===== */
+        .nudge { text-align:center; font-size:12.5px; color:var(--text-sub); display:none; }
+        .nudge strong { color:var(--deep-green); }
 
-        .auth-error {
-            display: none;
-            color: #e74c3c;
-            font-size: 12px;
-            margin-top: 12px;
-            padding: 8px;
-            background: #fdf0ef;
-            border-radius: 8px;
-        }
-
-        /* ===== PROGRESS BAR ===== */
-        .progress-section {
-            max-width: 500px;
-            margin: 0 auto 12px auto;
-            background: white;
-            border-radius: 12px;
-            padding: 14px 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .progress-title { font-weight: 700; font-size: 13px; color: var(--deep-green); }
-        .progress-stats { font-size: 12px; color: #888; }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 10px;
-            background: var(--light-sepia);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--success-green), var(--success-green-dark));
-            border-radius: 5px;
-            transition: width 0.5s ease;
-            width: 0%;
-        }
-
-        .progress-percentage { text-align: center; font-size: 11px; color: #999; margin-top: 4px; }
-
-        /* ===== MOTIVATION NUDGE ===== */
-        .nudge {
-            max-width: 500px;
-            margin: 0 auto 12px auto;
-            background: white;
-            border-radius: 12px;
-            padding: 10px 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            text-align: center;
-            font-size: 12.5px;
-            color: #888;
-            display: none;
-        }
-
-        .nudge strong { color: var(--deep-green); }
-
-        /* ===== ACTION MENU ===== */
-        .action-menu {
-            display: flex;
-            gap: 8px;
-            max-width: 500px;
-            margin: 0 auto 12px auto;
-        }
-
+        /* ===== BUTTONS ===== */
+        .action-menu { display:flex; gap:8px; max-width:500px; margin:0 auto 10px; }
         .btn {
-            padding: 12px 16px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-            color: white;
-            font-size: 13px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.12);
-            flex: 1;
-            transition: transform 0.15s, opacity 0.15s;
-            font-family: 'Quicksand', sans-serif;
+            padding:12px 16px; border:none; border-radius:12px; font-weight:bold; cursor:pointer;
+            text-align:center; color:white; font-size:13px; box-shadow:0 3px 8px rgba(0,0,0,0.12);
+            flex:1; transition:transform 0.15s,opacity 0.15s; font-family:'Quicksand',sans-serif;
         }
+        .btn:active { transform:scale(0.96); opacity:0.9; }
+        .btn-add { background:linear-gradient(135deg, var(--orange), var(--orange-dark)); }
+        .btn-pdf { background:linear-gradient(135deg, var(--deep-green), var(--deep-green-dark)); }
 
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
-
-        .btn-add {
-            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
-            animation: pulse 2.5s infinite;
-        }
-
-        .btn-pdf { background: linear-gradient(135deg, var(--deep-green), var(--deep-green-dark)); }
-
-        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
-
-        /* ===== TABLE CONTAINER ===== */
-        .container {
-            background: #fff;
-            padding: 5px;
-            border-radius: 12px;
-            width: 100%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-
-        h2 {
-            text-align: center;
-            color: var(--deep-green);
-            margin: 10px 0;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .columns { display: flex; flex-direction: column; }
-
-        @media (min-width: 900px) {
-            .columns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-        }
-
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        td { padding: 0; border: 0.5px solid #f0f0f0; height: 48px; vertical-align: middle; }
-        tr.completed td { background-color: #f0fdf4; }
-
-        .row-wrapper {
-            display: flex;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            transition: background 0.15s;
-        }
-
-        .row-wrapper:active { background: rgba(107, 112, 92, 0.06); }
-
-        .gun-no {
-            background-color: var(--light-sepia) !important;
-            color: var(--deep-green);
-            font-weight: bold;
-            width: 42px;
-            min-width: 42px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-right: 0.5px solid #ddd;
-            height: 100%;
-            font-size: 13px;
-            -webkit-print-color-adjust: exact;
-        }
-
-        .content-area {
-            flex-grow: 1;
-            padding: 0 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .book-title {
-            font-weight: bold;
-            font-size: 12px;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .page-range { color: #888; font-size: 11px; }
-
-        .check-box-cell {
-            width: 42px;
-            min-width: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            border-left: 0.5px solid #f0f0f0;
-        }
-
-        .check-box {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #ccc;
-            border-radius: 7px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            transition: all 0.2s ease;
-        }
-
-        tr.completed .check-box {
-            background-color: var(--success-green);
-            border-color: var(--success-green);
-            box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
-        }
-
-        tr.completed .check-box::after { content: '\2713'; font-weight: bold; }
+        /* ===== TABLE ===== */
+        .container { background:var(--card); padding:5px; border-radius:14px; width:100%; box-shadow:0 2px 12px var(--card-shadow); transition: background 0.3s; }
+        h2 { text-align:center; color:var(--deep-green); margin:10px 0; font-size:15px; text-transform:uppercase; letter-spacing:0.5px; }
+        .columns { display:flex; flex-direction:column; }
+        @media (min-width:900px) { .columns { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; } }
+        table { width:100%; border-collapse:collapse; table-layout:fixed; }
+        td { padding:0; border:0.5px solid var(--border); height:48px; vertical-align:middle; transition: background 0.2s; }
+        tr.completed td { background-color:var(--row-done); }
+        .row-wrapper { display:flex; align-items:center; height:100%; width:100%; cursor:pointer; user-select:none; -webkit-user-select:none; }
+        .row-wrapper:active { background:rgba(107,112,92,0.06); }
+        .gun-no { background:var(--sepia)!important; color:var(--deep-green); font-weight:bold; width:42px; min-width:42px; text-align:center; display:flex; align-items:center; justify-content:center; border-right:0.5px solid var(--border); height:100%; font-size:13px; -webkit-print-color-adjust:exact; transition: background 0.3s; }
+        .content-area { flex-grow:1; padding:0 10px; display:flex; flex-direction:column; justify-content:center; overflow:hidden; }
+        .book-title { font-weight:bold; font-size:12px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .page-range { color:var(--text-sub); font-size:11px; }
+        .check-box-cell { width:42px; min-width:42px; display:flex; align-items:center; justify-content:center; height:100%; border-left:0.5px solid var(--border); }
+        .check-box { width:24px; height:24px; border:2px solid var(--text-muted); border-radius:7px; background:var(--card); display:flex; align-items:center; justify-content:center; color:white; font-size:14px; transition:all 0.25s cubic-bezier(.4,0,.2,1); }
+        tr.completed .check-box { background:var(--success); border-color:var(--success); box-shadow:0 2px 6px rgba(46,204,113,0.35); transform:scale(1.1); }
+        tr.completed .check-box::after { content:'\2713'; font-weight:bold; }
 
         /* ===== LEADERBOARD ===== */
-
-        .lb-header {
-            max-width: 500px;
-            margin: 0 auto 12px auto;
-            background: white;
-            border-radius: 12px;
-            padding: 14px 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .lb-header-title { font-weight: 700; font-size: 15px; color: var(--deep-green); }
-        .lb-header-count { font-size: 12px; color: #888; }
-
-        .lb-list { max-width: 500px; margin: 0 auto; }
-
+        .lb-header-title { font-weight:700; font-size:15px; color:var(--deep-green); }
+        .lb-header-count { font-size:12px; color:var(--text-sub); }
+        .lb-week-banner { text-align:center; font-size:12px; color:var(--orange); padding:8px 0 4px; font-weight:600; }
+        .lb-list { max-width:500px; margin:0 auto; }
         .lb-row {
-            display: flex;
-            align-items: center;
-            background: white;
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            gap: 12px;
-            transition: transform 0.15s;
+            display:flex; align-items:center; background:var(--card); border-radius:14px;
+            padding:12px 14px; margin-bottom:8px; box-shadow:0 2px 10px var(--card-shadow);
+            gap:12px; transition:transform 0.2s, background 0.3s;
         }
-
-        .lb-row.self { border: 2px solid var(--deep-green); background: #fafff5; }
-
-        .lb-rank {
-            font-size: 20px;
-            font-weight: 700;
-            min-width: 32px;
-            text-align: center;
-            color: var(--deep-green);
-        }
-
-        .lb-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: var(--light-sepia);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .lb-info { flex: 1; min-width: 0; }
-
-        .lb-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .lb-streak { font-size: 11px; color: #888; }
-
-        .lb-badge { font-size: 14px; margin-left: 4px; }
-
-        .lb-progress-col { text-align: right; flex-shrink: 0; }
-
-        .lb-count { font-size: 18px; font-weight: 700; color: var(--deep-green); }
-
-        .lb-pct { font-size: 11px; color: #888; }
-
-        .lb-mini-bar {
-            width: 60px;
-            height: 5px;
-            background: var(--light-sepia);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 3px;
-            margin-left: auto;
-        }
-
-        .lb-mini-fill {
-            height: 100%;
-            background: var(--success-green);
-            border-radius: 3px;
-        }
-
-        .lb-empty {
-            text-align: center;
-            color: #bbb;
-            padding: 40px 20px;
-            font-size: 14px;
-        }
+        .lb-row:active { transform:scale(0.98); }
+        .lb-row.self { border:2px solid var(--deep-green); background:var(--row-done); }
+        .lb-rank { font-size:22px; font-weight:700; min-width:36px; text-align:center; color:var(--deep-green); }
+        .lb-avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; background:var(--sepia); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+        .lb-info { flex:1; min-width:0; }
+        .lb-name { font-weight:700; font-size:14px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .lb-streak { font-size:11px; color:var(--text-sub); }
+        .lb-badge { font-size:14px; margin-left:4px; }
+        .lb-progress-col { text-align:right; flex-shrink:0; }
+        .lb-count { font-size:18px; font-weight:700; color:var(--deep-green); }
+        .lb-pct { font-size:11px; color:var(--text-sub); }
+        .lb-mini-bar { width:60px; height:5px; background:var(--sepia); border-radius:3px; overflow:hidden; margin-top:3px; margin-left:auto; }
+        .lb-mini-fill { height:100%; background:var(--success); border-radius:3px; transition: width 0.5s; }
+        .lb-empty { text-align:center; color:var(--text-muted); padding:40px 20px; font-size:14px; }
 
         /* ===== PROFILE ===== */
+        .profile-card { max-width:500px; margin:0 auto; background:var(--card); border-radius:20px; padding:28px 20px; box-shadow:0 4px 20px var(--card-shadow); text-align:center; transition: background 0.3s; }
+        .profile-avatar { width:80px; height:80px; border-radius:50%; object-fit:cover; margin:0 auto 12px; display:block; background:var(--sepia); border:3px solid var(--success); }
+        .profile-avatar-placeholder { width:80px; height:80px; border-radius:50%; margin:0 auto 12px; background:var(--sepia); display:flex; align-items:center; justify-content:center; font-size:36px; border:3px solid var(--sepia); }
+        .profile-name { font-weight:700; font-size:20px; color:var(--text); margin-bottom:2px; }
+        .profile-email { font-size:12px; color:var(--text-muted); margin-bottom:20px; }
+        .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:20px; }
+        .stat-box { background:var(--bg); border-radius:14px; padding:16px 10px; transition: background 0.3s; }
+        .stat-value { font-size:24px; font-weight:700; color:var(--deep-green); }
+        .stat-label { font-size:11px; color:var(--text-sub); margin-top:2px; }
 
-        .profile-card {
-            max-width: 500px;
-            margin: 0 auto 12px auto;
-            background: white;
-            border-radius: 16px;
-            padding: 28px 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            text-align: center;
-        }
+        /* Badge collection */
+        .badge-section { margin-bottom:20px; }
+        .badge-section-title { font-size:13px; font-weight:700; color:var(--text-sub); margin-bottom:10px; }
+        .badge-grid { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+        .badge-item { text-align:center; width:64px; }
+        .badge-icon { font-size:32px; filter:grayscale(1) opacity(0.3); transition:all 0.3s; }
+        .badge-icon.earned { filter:none; opacity:1; animation: badgePop 0.4s ease; }
+        @keyframes badgePop { 0%{transform:scale(0.5)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
+        .badge-label { font-size:9px; color:var(--text-muted); margin-top:2px; }
 
-        .profile-avatar {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 0 auto 12px;
-            display: block;
-            background: var(--light-sepia);
-        }
+        .profile-actions { display:flex; flex-direction:column; gap:8px; }
+        .btn-signout { padding:12px; border:1.5px solid var(--border); border-radius:12px; background:var(--card); font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--text-sub); cursor:pointer; }
+        .btn-reset-profile { padding:12px; border:none; border-radius:12px; background:linear-gradient(135deg,#e74c3c,#c0392b); font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:white; cursor:pointer; }
+        .btn-notif { padding:12px; border:none; border-radius:12px; background:linear-gradient(135deg,var(--orange),var(--orange-dark)); font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:white; cursor:pointer; }
 
-        .profile-avatar-placeholder {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            margin: 0 auto 12px;
-            background: var(--light-sepia);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-        }
-
-        .profile-name { font-weight: 700; font-size: 18px; color: #333; margin-bottom: 4px; }
-        .profile-email { font-size: 12px; color: #999; margin-bottom: 20px; }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
-            background: var(--bg-cream);
-            border-radius: 12px;
-            padding: 14px 10px;
-        }
-
-        .stat-value { font-size: 22px; font-weight: 700; color: var(--deep-green); }
-        .stat-label { font-size: 11px; color: #999; margin-top: 2px; }
-
-        .profile-actions { display: flex; flex-direction: column; gap: 8px; }
-
-        .btn-signout {
-            padding: 12px;
-            border: 1.5px solid #ddd;
-            border-radius: 10px;
-            background: white;
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 700;
-            font-size: 13px;
-            color: #666;
-            cursor: pointer;
-        }
-
-        .btn-reset-profile {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 700;
-            font-size: 13px;
-            color: white;
-            cursor: pointer;
-        }
+        /* Dark mode toggle */
+        .dark-toggle { padding:12px; border:1.5px solid var(--border); border-radius:12px; background:var(--card); font-family:'Quicksand',sans-serif; font-weight:700; font-size:13px; color:var(--text-sub); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
 
         /* ===== BOTTOM NAV ===== */
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 1px solid #eee;
-            padding: 6px 16px;
-            padding-bottom: calc(6px + var(--safe-bottom));
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 100;
-        }
+        .bottom-bar { position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--border); padding:6px 16px; padding-bottom:calc(6px + var(--safe-bottom)); display:flex; justify-content:space-around; align-items:center; box-shadow:0 -2px 12px var(--card-shadow); z-index:100; transition: background 0.3s; }
+        .bottom-btn { display:flex; flex-direction:column; align-items:center; gap:2px; background:none; border:none; cursor:pointer; color:var(--text-muted); font-family:'Quicksand',sans-serif; font-size:10px; font-weight:600; padding:4px 8px; transition:color 0.2s; }
+        .bottom-btn.active { color:var(--deep-green); }
+        .bottom-btn-icon { font-size:20px; }
 
-        .bottom-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #bbb;
-            font-family: 'Quicksand', sans-serif;
-            font-size: 10px;
-            font-weight: 600;
-            padding: 4px 8px;
-            transition: color 0.2s;
-        }
+        /* ===== iOS OVERLAY ===== */
+        .ios-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; justify-content:center; align-items:flex-end; padding:20px; padding-bottom:calc(20px + var(--safe-bottom)); }
+        .ios-overlay.show { display:flex; }
+        .ios-guide { background:var(--card); border-radius:16px; padding:24px 20px; max-width:360px; width:100%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3); animation:slideUp 0.3s ease; }
+        @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .ios-guide-title { font-size:16px; font-weight:700; color:var(--deep-green); margin-bottom:16px; }
+        .ios-step { display:flex; align-items:center; gap:12px; text-align:left; padding:10px 0; border-bottom:1px solid var(--border); }
+        .ios-step:last-of-type { border-bottom:none; }
+        .ios-step-num { width:28px; height:28px; min-width:28px; background:var(--deep-green); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+        .ios-guide-icon { font-size:48px; margin-bottom:8px; }
+        .ios-guide-desc { font-size:12.5px; color:var(--text-sub); line-height:1.5; margin-bottom:16px; }
+        .ios-step-content { flex:1; }
+        .ios-step-label { font-weight:700; font-size:13px; color:var(--text); margin-bottom:2px; }
+        .ios-step-detail { font-size:12px; color:var(--text-sub); line-height:1.4; }
+        .ios-guide-note { margin-top:12px; padding:10px; background:#fff8e1; border-radius:8px; font-size:11.5px; color:#8d6e00; line-height:1.4; }
+        .ios-guide-close { margin-top:16px; background:var(--deep-green); color:white; border:none; padding:14px; border-radius:12px; cursor:pointer; font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; width:100%; }
+        .ios-dont-show { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:10px; font-size:11.5px; color:var(--text-muted); cursor:pointer; }
+        .ios-dont-show input { width:16px; height:16px; accent-color:var(--deep-green); }
 
-        .bottom-btn.active { color: var(--deep-green); }
-        .bottom-btn-icon { font-size: 20px; }
+        /* ===== DIALOG ===== */
+        .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:200; justify-content:center; align-items:center; }
+        .overlay.show { display:flex; }
+        .dialog { background:var(--card); border-radius:16px; padding:24px; max-width:320px; width:90%; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.2); }
+        .dialog h3 { margin:0 0 8px; color:var(--text); font-size:16px; }
+        .dialog p { margin:0 0 16px; color:var(--text-sub); font-size:13px; }
+        .dialog-btns { display:flex; gap:8px; }
+        .dialog-btns button { flex:1; padding:10px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-family:'Quicksand',sans-serif; font-size:13px; }
+        .dialog-cancel { background:var(--sepia); color:var(--text-sub); }
+        .dialog-confirm { background:#e74c3c; color:white; }
 
-        /* ===== iOS install overlay ===== */
-        .ios-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            z-index: 300;
-            justify-content: center;
-            align-items: flex-end;
-            padding: 20px;
-            padding-bottom: calc(20px + var(--safe-bottom));
-        }
+        /* ===== SYNC DOT ===== */
+        .sync-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-left:6px; vertical-align:middle; }
+        .sync-dot.online { background:var(--success); }
+        .sync-dot.offline { background:#e74c3c; }
+        .sync-dot.syncing { background:var(--orange); animation:blink 0.8s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        .ios-overlay.show { display: flex; }
-
-        .ios-guide {
-            background: white;
-            border-radius: 16px;
-            padding: 24px 20px;
-            max-width: 360px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(60px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .ios-guide-title { font-size: 16px; font-weight: 700; color: var(--deep-green); margin-bottom: 16px; }
-
-        .ios-step {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-align: left;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .ios-step:last-of-type { border-bottom: none; }
-
-        .ios-step-num {
-            width: 28px; height: 28px; min-width: 28px;
-            background: var(--deep-green); color: white;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 700;
-        }
-
-        .ios-guide-icon { font-size: 48px; margin-bottom: 8px; }
-        .ios-guide-desc { font-size: 12.5px; color: #888; line-height: 1.5; margin-bottom: 16px; }
-        .ios-step-content { flex: 1; }
-        .ios-step-label { font-weight: 700; font-size: 13px; color: #333; margin-bottom: 2px; }
-        .ios-step-detail { font-size: 12px; color: #777; line-height: 1.4; }
-        .ios-share-icon { font-size: 16px; }
-        .ios-guide-note { margin-top: 12px; padding: 10px; background: #fff8e1; border-radius: 8px; font-size: 11.5px; color: #8d6e00; line-height: 1.4; }
-
-        .ios-guide-close {
-            margin-top: 16px; background: var(--deep-green); color: white; border: none;
-            padding: 14px 32px; border-radius: 10px; cursor: pointer;
-            font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 14px; width: 100%;
-        }
-
-        .ios-dont-show {
-            display: flex; align-items: center; justify-content: center;
-            gap: 6px; margin-top: 10px; font-size: 11.5px; color: #999; cursor: pointer;
-        }
-
-        .ios-dont-show input { width: 16px; height: 16px; accent-color: var(--deep-green); }
-
-        /* ===== CONFIRM DIALOG ===== */
-        .overlay {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.4); z-index: 200;
-            justify-content: center; align-items: center;
-        }
-
-        .overlay.show { display: flex; }
-
-        .dialog {
-            background: white; border-radius: 14px; padding: 24px;
-            max-width: 320px; width: 90%; text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-
-        .dialog h3 { margin: 0 0 8px; color: var(--text-color); font-size: 16px; }
-        .dialog p { margin: 0 0 16px; color: #888; font-size: 13px; }
-        .dialog-btns { display: flex; gap: 8px; }
-        .dialog-btns button {
-            flex: 1; padding: 10px; border: none; border-radius: 8px;
-            font-weight: bold; cursor: pointer; font-family: 'Quicksand', sans-serif; font-size: 13px;
-        }
-        .dialog-cancel { background: #f0f0f0; color: #666; }
-        .dialog-confirm { background: #e74c3c; color: white; }
-
-        /* ===== SYNC INDICATOR ===== */
-        .sync-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            display: inline-block; margin-left: 6px; vertical-align: middle;
-        }
-        .sync-dot.online { background: var(--success-green); }
-        .sync-dot.offline { background: #e74c3c; }
-        .sync-dot.syncing { background: var(--orange); animation: blink 0.8s infinite; }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        /* ===== CONFETTI ===== */
+        .confetti-container { position:fixed; inset:0; z-index:600; pointer-events:none; overflow:hidden; }
+        .confetti-piece { position:absolute; width:10px; height:10px; top:-10px; animation: confettiFall 3s linear forwards; }
+        @keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
 
         /* ===== PRINT ===== */
-        @media print {
-            .no-print, .bottom-bar, .progress-section, .nudge, .auth-screen { display: none !important; }
-            body { padding: 0; }
-            .columns { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; }
-            td { height: 23px !important; }
-            .container { box-shadow: none; }
-        }
+        @media print { .no-print,.bottom-bar,.card.nudge,.auth-screen { display:none!important; } body{padding:0;} .columns{display:grid!important;grid-template-columns:repeat(4,1fr)!important;} td{height:23px!important;} .container{box-shadow:none;} }
     </style>
 </head>
 <body>
 
-<!-- ===== AUTH SCREEN ===== -->
+<!-- AUTH -->
 <div class="auth-screen" id="authScreen">
     <div class="auth-card">
         <div class="auth-icon">&#128218;</div>
         <h2>Risale-i Nur Okuma Programi</h2>
         <p>120 gunluk okuma programina katilmak icin giris yapin</p>
         <button class="btn-google" id="googleSignIn">
-            <svg viewBox="0 0 24 24" width="20" height="20">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Google ile Giris Yap
         </button>
         <div class="auth-loading" id="authLoading">Giris yapiliyor...</div>
@@ -686,114 +226,87 @@
     </div>
 </div>
 
-<!-- ===== PROGRAM VIEW ===== -->
+<!-- PROGRAM VIEW -->
 <div id="programView">
-    <!-- Progress Section -->
-    <div class="progress-section no-print">
+    <div class="card no-print">
         <div class="progress-header">
             <span class="progress-title">Okuma Ilerlemeniz <span class="sync-dot online" id="syncDot" title="Bagli"></span></span>
             <span class="progress-stats" id="progressStats">0 / 120 gun</span>
         </div>
-        <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-percentage" id="progressPercent">%0</div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <div class="progress-pct" id="progressPercent">%0</div>
     </div>
-
-    <!-- Motivation Nudge -->
-    <div class="nudge no-print" id="nudge"></div>
-
-    <!-- Action Buttons -->
+    <div class="card nudge no-print" id="nudge"></div>
     <div class="action-menu no-print">
         <button id="installBtn" class="btn btn-add">Ana Ekrana Ekle</button>
         <button class="btn btn-pdf" onclick="window.print()">PDF Cikti Al</button>
     </div>
-
-    <!-- Main Content -->
     <div class="container">
         <h2>120 Gunluk Risale-i Nur Okuma Programi</h2>
         <div class="columns" id="gridContainer"></div>
     </div>
 </div>
 
-<!-- ===== LEADERBOARD VIEW ===== -->
+<!-- LEADERBOARD VIEW -->
 <div id="leaderboardView" style="display:none">
-    <div class="lb-header">
-        <span class="lb-header-title">&#127942; Skor Tablosu</span>
-        <span class="lb-header-count" id="lbCount">0 katilimci</span>
+    <div class="card">
+        <div class="progress-header">
+            <span class="lb-header-title">&#127942; Skor Tablosu</span>
+            <span class="lb-header-count" id="lbCount">0 katilimci</span>
+        </div>
+        <div class="lb-week-banner" id="lbWeekBanner"></div>
     </div>
-    <div class="lb-list" id="lbList">
-        <div class="lb-empty">Yukleniyor...</div>
-    </div>
+    <div class="lb-list" id="lbList"><div class="lb-empty">Yukleniyor...</div></div>
 </div>
 
-<!-- ===== PROFILE VIEW ===== -->
+<!-- PROFILE VIEW -->
 <div id="profileView" style="display:none">
     <div class="profile-card">
         <div id="profileAvatarContainer"></div>
         <div class="profile-name" id="profileName">-</div>
         <div class="profile-email" id="profileEmail">-</div>
         <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-value" id="profileCompleted">0</div>
-                <div class="stat-label">Tamamlanan</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="profilePct">%0</div>
-                <div class="stat-label">Tamamlanma</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="profileStreak">0</div>
-                <div class="stat-label">Mevcut Seri</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value" id="profileLongest">0</div>
-                <div class="stat-label">En Uzun Seri</div>
+            <div class="stat-box"><div class="stat-value" id="profileCompleted">0</div><div class="stat-label">Tamamlanan</div></div>
+            <div class="stat-box"><div class="stat-value" id="profilePct">%0</div><div class="stat-label">Tamamlanma</div></div>
+            <div class="stat-box"><div class="stat-value" id="profileStreak">0</div><div class="stat-label">Mevcut Seri</div></div>
+            <div class="stat-box"><div class="stat-value" id="profileLongest">0</div><div class="stat-label">En Uzun Seri</div></div>
+        </div>
+        <div class="badge-section">
+            <div class="badge-section-title">Rozetler</div>
+            <div class="badge-grid" id="badgeGrid">
+                <div class="badge-item"><div class="badge-icon" id="badge1">&#127793;</div><div class="badge-label">Ilk Adim<br>1 gun</div></div>
+                <div class="badge-item"><div class="badge-icon" id="badge10">&#128293;</div><div class="badge-label">Atesleniyor<br>10 gun</div></div>
+                <div class="badge-item"><div class="badge-icon" id="badge30">&#127793;</div><div class="badge-label">Fidan<br>30 gun</div></div>
+                <div class="badge-item"><div class="badge-icon" id="badge60">&#127795;</div><div class="badge-label">Agac<br>60 gun</div></div>
+                <div class="badge-item"><div class="badge-icon" id="badge90">&#11088;</div><div class="badge-label">Yildiz<br>90 gun</div></div>
+                <div class="badge-item"><div class="badge-icon" id="badge120">&#127942;</div><div class="badge-label">Sampiyon<br>120 gun</div></div>
             </div>
         </div>
         <div class="profile-actions">
+            <button class="btn-notif" id="btnNotif">&#128276; Gunluk Hatirlatma Ac</button>
+            <button class="dark-toggle" id="btnDark">&#127769; Karanlik Mod</button>
             <button class="btn-reset-profile" id="btnResetProfile">Ilerlemeyi Sifirla</button>
             <button class="btn-signout" id="btnSignOut">Cikis Yap</button>
         </div>
     </div>
 </div>
 
-<!-- ===== iOS INSTALL GUIDE ===== -->
+<!-- iOS GUIDE -->
 <div class="ios-overlay no-print" id="iosOverlay">
     <div class="ios-guide">
         <div class="ios-guide-icon">&#128218;</div>
-        <div class="ios-guide-title">Uygulamayi Ana Ekrana Ekleyin!</div>
-        <div class="ios-guide-desc">Bu uygulamayi telefonunuza yuklemek icin asagidaki adimlari takip edin.</div>
-        <div class="ios-step">
-            <div class="ios-step-num">1</div>
-            <div class="ios-step-content">
-                <div class="ios-step-label">Safari'de Paylas butonuna dokunun</div>
-                <div class="ios-step-detail">Ekranin <strong>en altinda</strong> ortadaki <span class="ios-share-icon">&#x1F4E4;</span> butona dokunun</div>
-            </div>
-        </div>
-        <div class="ios-step">
-            <div class="ios-step-num">2</div>
-            <div class="ios-step-content">
-                <div class="ios-step-label">Ana Ekrana Ekle secenegini bulun</div>
-                <div class="ios-step-detail">Asagi kaydirup <span class="ios-share-icon">&#x2795;</span> <strong>"Ana Ekrana Ekle"</strong> yazisina dokunun</div>
-            </div>
-        </div>
-        <div class="ios-step">
-            <div class="ios-step-num">3</div>
-            <div class="ios-step-content">
-                <div class="ios-step-label">Ekle butonuna dokunun</div>
-                <div class="ios-step-detail">Sag ust kosedeki <strong>"Ekle"</strong> yazisina dokunun.</div>
-            </div>
-        </div>
-        <div class="ios-guide-note">Not: Bu islem sadece <strong>Safari</strong> tarayicisinda calisir.</div>
+        <div class="ios-guide-title">Ana Ekrana Ekleyin!</div>
+        <div class="ios-guide-desc">Telefonunuza yuklemek icin adimlari takip edin.</div>
+        <div class="ios-step"><div class="ios-step-num">1</div><div class="ios-step-content"><div class="ios-step-label">Paylas butonuna dokunun</div><div class="ios-step-detail">Alttaki &#x1F4E4; butona dokunun</div></div></div>
+        <div class="ios-step"><div class="ios-step-num">2</div><div class="ios-step-content"><div class="ios-step-label">Ana Ekrana Ekle</div><div class="ios-step-detail">Asagi kaydirup &#x2795; <strong>"Ana Ekrana Ekle"</strong> secin</div></div></div>
+        <div class="ios-step"><div class="ios-step-num">3</div><div class="ios-step-content"><div class="ios-step-label">Ekle</div><div class="ios-step-detail">Sag ustteki <strong>"Ekle"</strong> butonuna dokunun</div></div></div>
+        <div class="ios-guide-note">Sadece <strong>Safari</strong> tarayicisinda calisir.</div>
         <button class="ios-guide-close" onclick="closeIosGuide()">Anladim, Kapat</button>
-        <label class="ios-dont-show">
-            <input type="checkbox" id="iosDontShow"> Bir daha gosterme
-        </label>
+        <label class="ios-dont-show"><input type="checkbox" id="iosDontShow"> Bir daha gosterme</label>
     </div>
 </div>
 
-<!-- ===== RESET DIALOG ===== -->
+<!-- RESET DIALOG -->
 <div class="overlay" id="resetOverlay">
     <div class="dialog">
         <h3>Ilerlemeyi Sifirla</h3>
@@ -805,520 +318,258 @@
     </div>
 </div>
 
-<!-- ===== BOTTOM NAV ===== -->
+<!-- BOTTOM NAV -->
 <div class="bottom-bar no-print">
-    <button class="bottom-btn active" id="tabProgram" onclick="showTab('program')">
-        <span class="bottom-btn-icon">&#128214;</span>
-        <span>Program</span>
-    </button>
-    <button class="bottom-btn" id="tabLeaderboard" onclick="showTab('leaderboard')">
-        <span class="bottom-btn-icon">&#127942;</span>
-        <span>Skor</span>
-    </button>
-    <button class="bottom-btn" id="tabProfile" onclick="showTab('profile')">
-        <span class="bottom-btn-icon">&#128100;</span>
-        <span>Profil</span>
-    </button>
+    <button class="bottom-btn active" id="tabProgram" onclick="showTab('program')"><span class="bottom-btn-icon">&#128214;</span><span>Program</span></button>
+    <button class="bottom-btn" id="tabLeaderboard" onclick="showTab('leaderboard')"><span class="bottom-btn-icon">&#127942;</span><span>Skor</span></button>
+    <button class="bottom-btn" id="tabProfile" onclick="showTab('profile')"><span class="bottom-btn-icon">&#128100;</span><span>Profil</span></button>
 </div>
 
-<!-- ===== MAIN APP SCRIPT ===== -->
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiBox" style="display:none"></div>
+
 <script>
-    // ===== SERVICE WORKER =====
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW registered'))
-                .catch(err => console.log('SW failed:', err));
-        });
+// ===== SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+// ===== HELPERS =====
+function isIos(){return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())}
+function isInStandaloneMode(){return ('standalone' in window.navigator && window.navigator.standalone)||window.matchMedia('(display-mode: standalone)').matches}
+function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
+
+// ===== DARK MODE =====
+function applyTheme(dark) {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    document.getElementById('metaTheme').content = dark ? '#1a1a2e' : '#6b705c';
+    document.getElementById('btnDark').innerHTML = dark ? '&#9728;&#65039; Aydinlik Mod' : '&#127769; Karanlik Mod';
+    localStorage.setItem('darkMode', dark);
+}
+if (localStorage.getItem('darkMode') === 'true') applyTheme(true);
+document.getElementById('btnDark').addEventListener('click', () => {
+    applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+});
+
+// ===== NOTIFICATIONS =====
+document.getElementById('btnNotif').addEventListener('click', async () => {
+    if (!('Notification' in window)) { alert('Tarayiciniz bildirimleri desteklemiyor.'); return; }
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted') {
+        localStorage.setItem('notifEnabled', 'true');
+        document.getElementById('btnNotif').innerHTML = '&#9989; Hatirlatma Aktif';
+        new Notification('Risale-i Nur Okuma', { body: 'Gunluk hatirlatmalar aktif!', icon: 'icons/icon-192.png' });
     }
-
-    // ===== HELPERS =====
-    function isIos() { return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()); }
-    function isInStandaloneMode() {
-        return ('standalone' in window.navigator && window.navigator.standalone)
-            || window.matchMedia('(display-mode: standalone)').matches;
-    }
-    function escapeHtml(t) {
-        const d = document.createElement('div');
-        d.textContent = t;
-        return d.innerHTML;
-    }
-
-    // ===== PWA INSTALL =====
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-    if (isInStandaloneMode()) installBtn.style.display = 'none';
-
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') installBtn.style.display = 'none';
-            deferredPrompt = null;
-        } else {
-            document.getElementById('iosOverlay').classList.add('show');
-        }
-    });
-    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; deferredPrompt = null; });
-
-    function closeIosGuide() {
-        document.getElementById('iosOverlay').classList.remove('show');
-        if (document.getElementById('iosDontShow').checked) localStorage.setItem('iosGuideDismissed', 'true');
-    }
-    document.getElementById('iosOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeIosGuide(); });
-    if (isIos() && !isInStandaloneMode() && !localStorage.getItem('iosGuideDismissed')) {
-        setTimeout(() => document.getElementById('iosOverlay').classList.add('show'), 800);
-    }
-
-    // ===== READING SCHEDULE =====
-    const books = [
-        { name: "SOZLER", pages: 792 },
-        { name: "BARLA LAHIKASI", pages: 384 },
-        { name: "MEKTUBAT", pages: 524 },
-        { name: "KASTAMONU LAHIKASI", pages: 268 },
-        { name: "LEM'ALAR", pages: 450 },
-        { name: "EMIRDAG LAHIKASI-1", pages: 288 },
-        { name: "EMIRDAG LAHIKASI-2", pages: 247 },
-        { name: "SUALAR", pages: 764 }
-    ];
-
-    let schedule = [];
-    books.forEach(book => {
-        const days = Math.floor(book.pages / 30) || 1;
-        const base = Math.floor(book.pages / days);
-        const extra = book.pages % days;
-        let start = 1;
-        for (let i = 0; i < days; i++) {
-            const daily = base + (i < extra ? 1 : 0);
-            let end = start + daily - 1;
-            if (i === days - 1) end = book.pages;
-            schedule.push({ name: book.name, range: `${start}-${end}` });
-            start = end + 1;
-        }
-    });
-    while (schedule.length < 120) schedule.push({ name: "TEFEKKUR / DUA", range: "Serbest Okuma" });
-    if (schedule.length > 120) schedule = schedule.slice(0, 120);
-
-    // ===== RENDER TABLE =====
-    const gridContainer = document.getElementById('gridContainer');
-    for (let i = 0; i < 4; i++) {
-        const col = document.createElement('div');
-        const table = document.createElement('table');
-        const tbody = document.createElement('tbody');
-        for (let j = i * 30; j < (i + 1) * 30; j++) {
-            const data = schedule[j];
-            const realDay = j + 1;
-            const rowId = `day-${realDay}`;
-            const isDone = localStorage.getItem(rowId) === 'true';
-            const tr = document.createElement('tr');
-            tr.id = rowId;
-            if (isDone) tr.classList.add('completed');
-            const td = document.createElement('td');
-            td.innerHTML = `<div class="row-wrapper"><div class="gun-no">${realDay}</div><div class="content-area"><span class="book-title">${data.name}</span><span class="page-range">${data.range}</span></div><div class="check-box-cell"><div class="check-box"></div></div></div>`;
-            td.addEventListener('click', () => toggleDay(rowId));
-            tr.appendChild(td);
-            tbody.appendChild(tr);
-        }
-        table.appendChild(tbody);
-        col.appendChild(table);
-        gridContainer.appendChild(col);
-    }
-
-    // ===== TOGGLE DAY =====
-    function toggleDay(id) {
-        const el = document.getElementById(id);
-        const newState = !el.classList.contains('completed');
-        el.classList.toggle('completed', newState);
-        localStorage.setItem(id, newState);
-        updateProgress();
-        if (navigator.vibrate) navigator.vibrate(30);
-        // Sync to Firebase
-        if (window.firebaseSync) window.firebaseSync();
-    }
-
-    // ===== PROGRESS =====
-    function getCompletedDays() {
-        const days = [];
-        for (let i = 1; i <= 120; i++) {
-            if (localStorage.getItem(`day-${i}`) === 'true') days.push(i);
-        }
-        return days;
-    }
-
-    function updateProgress() {
-        const days = getCompletedDays();
-        const count = days.length;
-        const pct = Math.round((count / 120) * 100);
-        document.getElementById('progressFill').style.width = pct + '%';
-        document.getElementById('progressStats').textContent = `${count} / 120 gun`;
-        document.getElementById('progressPercent').textContent = `%${pct}`;
-    }
-
-    function refreshAllRows() {
-        for (let i = 1; i <= 120; i++) {
-            const el = document.getElementById(`day-${i}`);
-            if (!el) continue;
-            const isDone = localStorage.getItem(`day-${i}`) === 'true';
-            el.classList.toggle('completed', isDone);
-        }
-    }
-
-    updateProgress();
-
-    // ===== STREAK CALCULATIONS =====
-    function calcStreak(days) {
-        if (!days.length) return 0;
-        const s = [...days].sort((a, b) => a - b);
-        let streak = 1;
-        for (let i = s.length - 1; i > 0; i--) {
-            if (s[i] - s[i - 1] === 1) streak++;
-            else break;
-        }
-        return streak;
-    }
-
-    function calcLongestStreak(days) {
-        if (!days.length) return 0;
-        const s = [...days].sort((a, b) => a - b);
-        let longest = 1, current = 1;
-        for (let i = 1; i < s.length; i++) {
-            if (s[i] - s[i - 1] === 1) { current++; longest = Math.max(longest, current); }
-            else current = 1;
-        }
-        return longest;
-    }
-
-    function getBadge(total) {
-        if (total >= 120) return '\u{1F3C6}';
-        if (total >= 90) return '\u2B50';
-        if (total >= 60) return '\u{1F333}';
-        if (total >= 30) return '\u{1F331}';
-        return '';
-    }
-
-    // ===== TAB NAVIGATION =====
-    function showTab(tab) {
-        document.getElementById('programView').style.display = tab === 'program' ? 'block' : 'none';
-        document.getElementById('leaderboardView').style.display = tab === 'leaderboard' ? 'block' : 'none';
-        document.getElementById('profileView').style.display = tab === 'profile' ? 'block' : 'none';
-        document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
-        const tabBtn = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-        if (tabBtn) tabBtn.classList.add('active');
-        if (tab === 'program') window.scrollTo({ top: 0 });
-        if (tab === 'profile') updateProfileView();
-    }
-
-    // ===== SCROLL TO TODAY =====
-    function scrollToToday() {
-        showTab('program');
+});
+// Check daily reminder on load
+if (localStorage.getItem('notifEnabled') === 'true' && 'Notification' in window && Notification.permission === 'granted') {
+    document.getElementById('btnNotif').innerHTML = '&#9989; Hatirlatma Aktif';
+    const lastRemind = localStorage.getItem('lastRemind');
+    const today = new Date().toDateString();
+    if (lastRemind !== today) {
+        localStorage.setItem('lastRemind', today);
         setTimeout(() => {
-            for (let i = 1; i <= 120; i++) {
-                if (localStorage.getItem(`day-${i}`) !== 'true') {
-                    const el = document.getElementById(`day-${i}`);
-                    if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        el.style.outline = '2px solid var(--orange)';
-                        setTimeout(() => el.style.outline = '', 2000);
-                    }
-                    return;
-                }
-            }
-        }, 100);
+            new Notification('Risale-i Nur Okuma', { body: 'Bugunluk okumanizi tamamladiniz mi? &#128218;', icon: 'icons/icon-192.png' });
+        }, 3000);
     }
+}
 
-    // ===== RESET =====
-    function showResetDialog() { document.getElementById('resetOverlay').classList.add('show'); }
-    function closeResetDialog() { document.getElementById('resetOverlay').classList.remove('show'); }
-    function confirmReset() {
-        for (let i = 1; i <= 120; i++) {
-            localStorage.removeItem(`day-${i}`);
-            const el = document.getElementById(`day-${i}`);
-            if (el) el.classList.remove('completed');
-        }
-        updateProgress();
-        closeResetDialog();
-        if (window.firebaseSync) window.firebaseSync();
+// ===== CONFETTI =====
+function showConfetti() {
+    const box = document.getElementById('confettiBox');
+    box.style.display = 'block';
+    box.innerHTML = '';
+    const colors = ['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c'];
+    for (let i = 0; i < 80; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = Math.random()*100 + '%';
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.animationDelay = Math.random()*2 + 's';
+        p.style.animationDuration = (2 + Math.random()*2) + 's';
+        p.style.width = (6 + Math.random()*8) + 'px';
+        p.style.height = (6 + Math.random()*8) + 'px';
+        p.style.borderRadius = Math.random()>0.5 ? '50%' : '2px';
+        box.appendChild(p);
     }
-    document.getElementById('resetOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeResetDialog(); });
-    document.getElementById('btnResetProfile').addEventListener('click', showResetDialog);
+    setTimeout(() => { box.style.display = 'none'; box.innerHTML = ''; }, 4000);
+}
 
-    // ===== PROFILE VIEW =====
-    function updateProfileView() {
-        const days = getCompletedDays();
-        const count = days.length;
-        const pct = Math.round((count / 120) * 100);
-        document.getElementById('profileCompleted').textContent = count;
-        document.getElementById('profilePct').textContent = `%${pct}`;
-        document.getElementById('profileStreak').textContent = calcStreak(days);
-        document.getElementById('profileLongest').textContent = calcLongestStreak(days);
-    }
+// ===== PWA INSTALL =====
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+if (isInStandaloneMode()) installBtn.style.display = 'none';
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) { deferredPrompt.prompt(); const{outcome}=await deferredPrompt.userChoice; if(outcome==='accepted')installBtn.style.display='none'; deferredPrompt=null; }
+    else document.getElementById('iosOverlay').classList.add('show');
+});
+window.addEventListener('appinstalled', () => { installBtn.style.display='none'; deferredPrompt=null; });
+function closeIosGuide(){document.getElementById('iosOverlay').classList.remove('show');if(document.getElementById('iosDontShow').checked)localStorage.setItem('iosGuideDismissed','true')}
+document.getElementById('iosOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeIosGuide()});
+if(isIos()&&!isInStandaloneMode()&&!localStorage.getItem('iosGuideDismissed'))setTimeout(()=>document.getElementById('iosOverlay').classList.add('show'),800);
+
+// ===== SCHEDULE =====
+const books=[{name:"SOZLER",pages:792},{name:"BARLA LAHIKASI",pages:384},{name:"MEKTUBAT",pages:524},{name:"KASTAMONU LAHIKASI",pages:268},{name:"LEM'ALAR",pages:450},{name:"EMIRDAG LAHIKASI-1",pages:288},{name:"EMIRDAG LAHIKASI-2",pages:247},{name:"SUALAR",pages:764}];
+let schedule=[];
+books.forEach(b=>{const d=Math.floor(b.pages/30)||1,base=Math.floor(b.pages/d),extra=b.pages%d;let s=1;for(let i=0;i<d;i++){const daily=base+(i<extra?1:0);let e=s+daily-1;if(i===d-1)e=b.pages;schedule.push({name:b.name,range:`${s}-${e}`});s=e+1}});
+while(schedule.length<120)schedule.push({name:"TEFEKKUR / DUA",range:"Serbest Okuma"});
+if(schedule.length>120)schedule=schedule.slice(0,120);
+
+// ===== RENDER TABLE =====
+const gridContainer=document.getElementById('gridContainer');
+for(let i=0;i<4;i++){const col=document.createElement('div'),table=document.createElement('table'),tbody=document.createElement('tbody');
+for(let j=i*30;j<(i+1)*30;j++){const data=schedule[j],rd=j+1,rid=`day-${rd}`,done=localStorage.getItem(rid)==='true';
+const tr=document.createElement('tr');tr.id=rid;if(done)tr.classList.add('completed');
+const td=document.createElement('td');td.innerHTML=`<div class="row-wrapper"><div class="gun-no">${rd}</div><div class="content-area"><span class="book-title">${data.name}</span><span class="page-range">${data.range}</span></div><div class="check-box-cell"><div class="check-box"></div></div></div>`;
+td.addEventListener('click',()=>toggleDay(rid));tr.appendChild(td);tbody.appendChild(tr)}
+table.appendChild(tbody);col.appendChild(table);gridContainer.appendChild(col)}
+
+// ===== TOGGLE =====
+let prevCompleted = getCompletedDays().length;
+function toggleDay(id){const el=document.getElementById(id);const ns=!el.classList.contains('completed');el.classList.toggle('completed',ns);localStorage.setItem(id,ns);updateProgress();if(navigator.vibrate)navigator.vibrate(30);
+const now=getCompletedDays().length;if(now===120&&prevCompleted<120)showConfetti();prevCompleted=now;
+if(window.firebaseSync)window.firebaseSync()}
+
+// ===== PROGRESS =====
+function getCompletedDays(){const d=[];for(let i=1;i<=120;i++)if(localStorage.getItem(`day-${i}`)==='true')d.push(i);return d}
+function updateProgress(){const d=getCompletedDays(),c=d.length,p=Math.round(c/120*100);document.getElementById('progressFill').style.width=p+'%';document.getElementById('progressStats').textContent=`${c} / 120 gun`;document.getElementById('progressPercent').textContent=`%${p}`}
+function refreshAllRows(){for(let i=1;i<=120;i++){const el=document.getElementById(`day-${i}`);if(el)el.classList.toggle('completed',localStorage.getItem(`day-${i}`)==='true')}}
+updateProgress();
+
+// ===== STREAKS =====
+function calcStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let k=1;for(let i=s.length-1;i>0;i--)if(s[i]-s[i-1]===1)k++;else break;return k}
+function calcLongestStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let l=1,c=1;for(let i=1;i<s.length;i++)if(s[i]-s[i-1]===1){c++;l=Math.max(l,c)}else c=1;return l}
+function getBadge(t){if(t>=120)return'\u{1F3C6}';if(t>=90)return'\u2B50';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F331}';return''}
+
+// ===== TABS =====
+function showTab(tab){
+    document.getElementById('programView').style.display=tab==='program'?'block':'none';
+    document.getElementById('leaderboardView').style.display=tab==='leaderboard'?'block':'none';
+    document.getElementById('profileView').style.display=tab==='profile'?'block':'none';
+    document.querySelectorAll('.bottom-btn').forEach(b=>b.classList.remove('active'));
+    const btn=document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));if(btn)btn.classList.add('active');
+    if(tab==='program')window.scrollTo({top:0});if(tab==='profile')updateProfileView()}
+
+// ===== RESET =====
+function showResetDialog(){document.getElementById('resetOverlay').classList.add('show')}
+function closeResetDialog(){document.getElementById('resetOverlay').classList.remove('show')}
+function confirmReset(){for(let i=1;i<=120;i++){localStorage.removeItem(`day-${i}`);const el=document.getElementById(`day-${i}`);if(el)el.classList.remove('completed')}updateProgress();closeResetDialog();if(window.firebaseSync)window.firebaseSync()}
+document.getElementById('resetOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeResetDialog()});
+document.getElementById('btnResetProfile').addEventListener('click',showResetDialog);
+
+// ===== PROFILE =====
+function updateProfileView(){
+    const d=getCompletedDays(),c=d.length,p=Math.round(c/120*100);
+    document.getElementById('profileCompleted').textContent=c;
+    document.getElementById('profilePct').textContent=`%${p}`;
+    document.getElementById('profileStreak').textContent=calcStreak(d);
+    document.getElementById('profileLongest').textContent=calcLongestStreak(d);
+    // Badges
+    const thresholds=[{id:'badge1',n:1},{id:'badge10',n:10},{id:'badge30',n:30},{id:'badge60',n:60},{id:'badge90',n:90},{id:'badge120',n:120}];
+    thresholds.forEach(t=>{const el=document.getElementById(t.id);if(el)el.classList.toggle('earned',c>=t.n)});
+}
 </script>
 
-<!-- ===== FIREBASE MODULE ===== -->
+<!-- FIREBASE -->
 <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js';
-    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut }
-        from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js';
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, onSnapshot, serverTimestamp }
-        from 'https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js';
+import{initializeApp}from'https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js';
+import{getAuth,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,onAuthStateChanged,signOut}from'https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js';
+import{getFirestore,doc,getDoc,setDoc,updateDoc,collection,query,orderBy,onSnapshot,serverTimestamp}from'https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js';
 
-    // ===== FIREBASE CONFIG =====
-    const firebaseConfig = {
-        apiKey: "AIzaSyBKOxExDGYFj361b5FuhLWkE3ckzUhFK0E",
-        authDomain: "risale-okuma.firebaseapp.com",
-        databaseURL: "https://risale-okuma-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "risale-okuma",
-        storageBucket: "risale-okuma.firebasestorage.app",
-        messagingSenderId: "288355350259",
-        appId: "1:288355350259:web:07f41f8439414ee0276986"
-    };
+const app=initializeApp({apiKey:"AIzaSyBKOxExDGYFj361b5FuhLWkE3ckzUhFK0E",authDomain:"risale-okuma.firebaseapp.com",projectId:"risale-okuma",storageBucket:"risale-okuma.firebasestorage.app",messagingSenderId:"288355350259",appId:"1:288355350259:web:07f41f8439414ee0276986"});
+const auth=getAuth(app),db=getFirestore(app),provider=new GoogleAuthProvider();
+let currentUser=null,syncTimeout=null;
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
+function debouncedSync(){clearTimeout(syncTimeout);syncTimeout=setTimeout(()=>syncToFirestore(),1000)}
+window.firebaseSync=debouncedSync;
 
-    let currentUser = null;
-    let syncTimeout = null;
+async function syncToFirestore(){
+    if(!currentUser)return;
+    const dot=document.getElementById('syncDot');dot.className='sync-dot syncing';
+    try{
+        const days=[];for(let i=1;i<=120;i++)if(localStorage.getItem(`day-${i}`)==='true')days.push(i);
+        await updateDoc(doc(db,'users',currentUser.uid),{completedDays:days,totalCompleted:days.length,currentStreak:calcStreak(days),longestStreak:calcLongestStreak(days),lastActive:serverTimestamp()});
+        dot.className='sync-dot online';
+    }catch(e){console.error('Sync:',e);dot.className='sync-dot offline'}
+}
 
-    // ===== DEBOUNCED SYNC =====
-    function debouncedSync() {
-        clearTimeout(syncTimeout);
-        syncTimeout = setTimeout(() => syncToFirestore(), 1000);
-    }
-    window.firebaseSync = debouncedSync;
+window.addEventListener('online',()=>{document.getElementById('syncDot').className='sync-dot online';if(currentUser)debouncedSync()});
+window.addEventListener('offline',()=>{const d=document.getElementById('syncDot');d.className='sync-dot offline';d.title='Cevrimdisi'});
 
-    async function syncToFirestore() {
-        if (!currentUser) return;
-        const dot = document.getElementById('syncDot');
-        dot.className = 'sync-dot syncing';
-        dot.title = 'Senkronize ediliyor...';
-        try {
-            const days = [];
-            for (let i = 1; i <= 120; i++) {
-                if (localStorage.getItem(`day-${i}`) === 'true') days.push(i);
-            }
-            const userRef = doc(db, 'users', currentUser.uid);
-            await updateDoc(userRef, {
-                completedDays: days,
-                totalCompleted: days.length,
-                currentStreak: calcStreak(days),
-                longestStreak: calcLongestStreak(days),
-                lastActive: serverTimestamp()
-            });
-            dot.className = 'sync-dot online';
-            dot.title = 'Senkronize edildi';
-        } catch (err) {
-            console.error('Sync error:', err);
-            dot.className = 'sync-dot offline';
-            dot.title = 'Senkronizasyon hatasi';
+getRedirectResult(auth).catch(()=>{});
+
+document.getElementById('googleSignIn').addEventListener('click',async()=>{
+    document.getElementById('authLoading').style.display='block';document.getElementById('authError').style.display='none';
+    try{if(isInStandaloneMode()&&isIos())await signInWithRedirect(auth,provider);else await signInWithPopup(auth,provider)}
+    catch(e){document.getElementById('authLoading').style.display='none';document.getElementById('authError').style.display='block';document.getElementById('authError').textContent='Giris basarisiz. Tekrar deneyin.'}
+});
+
+document.getElementById('btnSignOut').addEventListener('click',async()=>{await signOut(auth);currentUser=null;document.getElementById('authScreen').classList.remove('hidden')});
+
+onAuthStateChanged(auth,async user=>{
+    if(user){currentUser=user;document.getElementById('authScreen').classList.add('hidden');await initUserData(user);startLeaderboard();updateUserProfile(user)}
+    else{currentUser=null;document.getElementById('authScreen').classList.remove('hidden')}
+});
+
+async function initUserData(user){
+    try{
+        const ref=doc(db,'users',user.uid),snap=await getDoc(ref);
+        if(!snap.exists()){
+            const days=[];for(let i=1;i<=120;i++)if(localStorage.getItem(`day-${i}`)==='true')days.push(i);
+            await setDoc(ref,{displayName:user.displayName||'Anonim',photoURL:user.photoURL||null,completedDays:days,totalCompleted:days.length,currentStreak:calcStreak(days),longestStreak:calcLongestStreak(days),lastActive:serverTimestamp(),createdAt:serverTimestamp()});
+        }else{
+            const data=snap.data();for(let i=1;i<=120;i++)localStorage.removeItem(`day-${i}`);
+            for(const d of(data.completedDays||[]))localStorage.setItem(`day-${d}`,'true');
+            refreshAllRows();updateProgress();
         }
+    }catch(e){console.error('Init:',e)}
+}
+
+function updateUserProfile(user){
+    document.getElementById('profileName').textContent=user.displayName||'Anonim';
+    document.getElementById('profileEmail').textContent=user.email||'';
+    const c=document.getElementById('profileAvatarContainer');
+    c.innerHTML=user.photoURL?`<img class="profile-avatar" src="${user.photoURL}" referrerpolicy="no-referrer">`:'<div class="profile-avatar-placeholder">&#128100;</div>';
+}
+
+function startLeaderboard(){
+    const q=query(collection(db,'users'),orderBy('totalCompleted','desc'));
+    onSnapshot(q,snap=>{const u=[];snap.forEach(d=>u.push({uid:d.id,...d.data()}));renderLeaderboard(u);updateNudge(u)},e=>console.error('LB:',e));
+}
+
+function renderLeaderboard(users){
+    const list=document.getElementById('lbList'),uid=currentUser?.uid;
+    document.getElementById('lbCount').textContent=`${users.length} katilimci`;
+    // Weekly top reader
+    const wb=document.getElementById('lbWeekBanner');
+    if(users.length>0){
+        const top=users[0];
+        wb.innerHTML=`&#128081; Bu donem lideri: <strong>${escapeHtml(top.displayName||'Anonim')}</strong> (${top.totalCompleted}/120)`;
     }
+    if(!users.length){list.innerHTML='<div class="lb-empty">Henuz katilimci yok</div>';return}
+    list.innerHTML=users.map((u,i)=>{
+        const rank=i+1,self=u.uid===uid?'self':'',pct=Math.round((u.totalCompleted||0)/120*100),badge=getBadge(u.totalCompleted||0);
+        const rd=rank===1?'\u{1F947}':rank===2?'\u{1F948}':rank===3?'\u{1F949}':rank;
+        const av=u.photoURL?`<img class="lb-avatar" src="${escapeHtml(u.photoURL)}" referrerpolicy="no-referrer">`:`<div class="lb-avatar">&#128100;</div>`;
+        return`<div class="lb-row ${self}"><div class="lb-rank">${rd}</div>${av}<div class="lb-info"><div class="lb-name">${escapeHtml(u.displayName||'Anonim')}${badge?' <span class="lb-badge">'+badge+'</span>':''}</div><div class="lb-streak">&#128293; ${u.currentStreak||0} gun seri</div></div><div class="lb-progress-col"><div class="lb-count">${u.totalCompleted||0}<span style="font-size:12px;color:var(--text-muted)">/120</span></div><div class="lb-mini-bar"><div class="lb-mini-fill" style="width:${pct}%"></div></div><div class="lb-pct">%${pct}</div></div></div>`
+    }).join('');
+}
 
-    // ===== ONLINE/OFFLINE =====
-    window.addEventListener('online', () => {
-        document.getElementById('syncDot').className = 'sync-dot online';
-        if (currentUser) debouncedSync();
-    });
-    window.addEventListener('offline', () => {
-        document.getElementById('syncDot').className = 'sync-dot offline';
-        document.getElementById('syncDot').title = 'Cevrimdisi';
-    });
+function updateNudge(users){
+    const uid=currentUser?.uid,nudge=document.getElementById('nudge');
+    if(!uid||users.length<2){nudge.style.display='none';return}
+    const mi=users.findIndex(u=>u.uid===uid);
+    if(mi<=0){nudge.innerHTML='\u{1F451} <strong>Tebrikler!</strong> Birinci siradasiniz!';nudge.style.display='block'}
+    else{nudge.innerHTML=`<strong>${mi} kisi</strong> senden onde. Lider: <strong>${escapeHtml(users[0].displayName||'Anonim')}</strong> (${users[0].totalCompleted}/120)`;nudge.style.display='block'}
+}
 
-    // ===== AUTH =====
-    const authScreen = document.getElementById('authScreen');
-    const authLoading = document.getElementById('authLoading');
-    const authError = document.getElementById('authError');
-
-    // Handle redirect result (for iOS standalone)
-    getRedirectResult(auth).catch(() => {});
-
-    document.getElementById('googleSignIn').addEventListener('click', async () => {
-        authLoading.style.display = 'block';
-        authError.style.display = 'none';
-        try {
-            if (isInStandaloneMode() && isIos()) {
-                await signInWithRedirect(auth, provider);
-            } else {
-                await signInWithPopup(auth, provider);
-            }
-        } catch (err) {
-            console.error('Auth error:', err);
-            authLoading.style.display = 'none';
-            authError.style.display = 'block';
-            authError.textContent = 'Giris basarisiz. Lutfen tekrar deneyin.';
-        }
-    });
-
-    document.getElementById('btnSignOut').addEventListener('click', async () => {
-        await signOut(auth);
-        currentUser = null;
-        authScreen.classList.remove('hidden');
-    });
-
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUser = user;
-            authScreen.classList.add('hidden');
-            await initUserData(user);
-            startLeaderboard();
-            updateUserProfile(user);
-        } else {
-            currentUser = null;
-            authScreen.classList.remove('hidden');
-        }
-    });
-
-    // ===== INIT USER DATA =====
-    async function initUserData(user) {
-        try {
-            const userRef = doc(db, 'users', user.uid);
-            const userSnap = await getDoc(userRef);
-
-            if (!userSnap.exists()) {
-                // New user - migrate localStorage to Firestore
-                const days = [];
-                for (let i = 1; i <= 120; i++) {
-                    if (localStorage.getItem(`day-${i}`) === 'true') days.push(i);
-                }
-                await setDoc(userRef, {
-                    displayName: user.displayName || 'Anonim',
-                    photoURL: user.photoURL || null,
-                    completedDays: days,
-                    totalCompleted: days.length,
-                    currentStreak: calcStreak(days),
-                    longestStreak: calcLongestStreak(days),
-                    lastActive: serverTimestamp(),
-                    createdAt: serverTimestamp()
-                });
-            } else {
-                // Existing user - load from Firestore into localStorage
-                const data = userSnap.data();
-                for (let i = 1; i <= 120; i++) localStorage.removeItem(`day-${i}`);
-                for (const day of (data.completedDays || [])) {
-                    localStorage.setItem(`day-${day}`, 'true');
-                }
-                refreshAllRows();
-                updateProgress();
-            }
-        } catch (err) {
-            console.error('Init error:', err);
-        }
-    }
-
-    // ===== USER PROFILE =====
-    function updateUserProfile(user) {
-        document.getElementById('profileName').textContent = user.displayName || 'Anonim';
-        document.getElementById('profileEmail').textContent = user.email || '';
-        const container = document.getElementById('profileAvatarContainer');
-        if (user.photoURL) {
-            container.innerHTML = `<img class="profile-avatar" src="${user.photoURL}" alt="" referrerpolicy="no-referrer">`;
-        } else {
-            container.innerHTML = '<div class="profile-avatar-placeholder">&#128100;</div>';
-        }
-    }
-
-    // ===== LEADERBOARD =====
-    function startLeaderboard() {
-        const q = query(collection(db, 'users'), orderBy('totalCompleted', 'desc'));
-        onSnapshot(q, (snapshot) => {
-            const users = [];
-            snapshot.forEach(d => users.push({ uid: d.id, ...d.data() }));
-            renderLeaderboard(users);
-            updateNudge(users);
-        }, (err) => {
-            console.error('Leaderboard error:', err);
-        });
-    }
-
-    function renderLeaderboard(users) {
-        const list = document.getElementById('lbList');
-        const uid = currentUser?.uid;
-        document.getElementById('lbCount').textContent = `${users.length} katilimci`;
-
-        if (!users.length) {
-            list.innerHTML = '<div class="lb-empty">Henuz katilimci yok</div>';
-            return;
-        }
-
-        list.innerHTML = users.map((u, i) => {
-            const rank = i + 1;
-            const selfClass = u.uid === uid ? 'self' : '';
-            const pct = Math.round((u.totalCompleted / 120) * 100);
-            const badge = getBadge(u.totalCompleted);
-            const rankDisplay = rank === 1 ? '\u{1F947}' : rank === 2 ? '\u{1F948}' : rank === 3 ? '\u{1F949}' : rank;
-            const avatar = u.photoURL
-                ? `<img class="lb-avatar" src="${escapeHtml(u.photoURL)}" alt="" referrerpolicy="no-referrer">`
-                : `<div class="lb-avatar">&#128100;</div>`;
-
-            return `
-                <div class="lb-row ${selfClass}">
-                    <div class="lb-rank">${rankDisplay}</div>
-                    ${avatar}
-                    <div class="lb-info">
-                        <div class="lb-name">${escapeHtml(u.displayName || 'Anonim')} ${badge ? '<span class="lb-badge">' + badge + '</span>' : ''}</div>
-                        <div class="lb-streak">\u{1F525} ${u.currentStreak || 0} gun seri</div>
-                    </div>
-                    <div class="lb-progress-col">
-                        <div class="lb-count">${u.totalCompleted || 0}<span style="font-size:12px;color:#999">/120</span></div>
-                        <div class="lb-mini-bar"><div class="lb-mini-fill" style="width:${pct}%"></div></div>
-                        <div class="lb-pct">%${pct}</div>
-                    </div>
-                </div>`;
-        }).join('');
-    }
-
-    function updateNudge(users) {
-        const uid = currentUser?.uid;
-        const nudge = document.getElementById('nudge');
-        if (!uid || users.length < 2) { nudge.style.display = 'none'; return; }
-
-        const myIndex = users.findIndex(u => u.uid === uid);
-        if (myIndex <= 0) {
-            nudge.innerHTML = '\u{1F451} <strong>Tebrikler!</strong> Birinci siradasiniz!';
-            nudge.style.display = 'block';
-        } else {
-            const ahead = myIndex;
-            const leader = users[0];
-            nudge.innerHTML = `<strong>${ahead} kisi</strong> senden onde. Lider: <strong>${escapeHtml(leader.displayName || 'Anonim')}</strong> (${leader.totalCompleted}/120)`;
-            nudge.style.display = 'block';
-        }
-    }
-
-    // Use functions from outer script
-    function isIos() { return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()); }
-    function isInStandaloneMode() {
-        return ('standalone' in window.navigator && window.navigator.standalone)
-            || window.matchMedia('(display-mode: standalone)').matches;
-    }
-    function calcStreak(days) {
-        if (!days.length) return 0;
-        const s = [...days].sort((a, b) => a - b);
-        let streak = 1;
-        for (let i = s.length - 1; i > 0; i--) {
-            if (s[i] - s[i - 1] === 1) streak++; else break;
-        }
-        return streak;
-    }
-    function calcLongestStreak(days) {
-        if (!days.length) return 0;
-        const s = [...days].sort((a, b) => a - b);
-        let longest = 1, current = 1;
-        for (let i = 1; i < s.length; i++) {
-            if (s[i] - s[i - 1] === 1) { current++; longest = Math.max(longest, current); }
-            else current = 1;
-        }
-        return longest;
-    }
-    function getBadge(total) {
-        if (total >= 120) return '\u{1F3C6}';
-        if (total >= 90) return '\u2B50';
-        if (total >= 60) return '\u{1F333}';
-        if (total >= 30) return '\u{1F331}';
-        return '';
-    }
-    function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function isIos(){return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())}
+function isInStandaloneMode(){return('standalone' in window.navigator&&window.navigator.standalone)||window.matchMedia('(display-mode: standalone)').matches}
+function calcStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let k=1;for(let i=s.length-1;i>0;i--)if(s[i]-s[i-1]===1)k++;else break;return k}
+function calcLongestStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let l=1,c=1;for(let i=1;i<s.length;i++)if(s[i]-s[i-1]===1){c++;l=Math.max(l,c)}else c=1;return l}
+function getBadge(t){if(t>=120)return'\u{1F3C6}';if(t>=90)return'\u2B50';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F331}';return''}
+function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
 </script>
 </body>
 </html>
