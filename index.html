@@ -107,12 +107,21 @@
         .book-title{font-weight:bold;font-size:12px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .page-range{color:var(--txs);font-size:11px}
         .page-progress{font-size:10px;color:var(--or);font-weight:600}
-        .check-box-cell{width:42px;min-width:42px;display:flex;align-items:center;justify-content:center;height:100%;border-left:.5px solid var(--brd);cursor:pointer}
+        .check-box-cell{width:50px;min-width:50px;display:flex;align-items:center;justify-content:center;height:100%;border-left:.5px solid var(--brd);cursor:pointer;flex-direction:column;gap:2px;padding:4px 0}
         .check-box-cell:active{background:rgba(46,204,113,.08)}
-        .check-box{width:24px;height:24px;border:2px solid var(--txm);border-radius:7px;background:var(--card);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;transition:all .25s cubic-bezier(.4,0,.2,1)}
-        tr.completed .check-box{background:var(--ok);border-color:var(--ok);box-shadow:0 2px 6px rgba(46,204,113,.35);transform:scale(1.1)}
-        tr.completed .check-box::after{content:'\2713';font-weight:bold}
-        tr.partial .check-box{border-color:var(--or);border-width:2.5px}
+        .day-bar{width:32px;height:32px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--txm);position:relative;overflow:hidden;transition:all .3s;background:var(--card)}
+        .day-bar-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,var(--or),#f39c12);transition:height .4s ease;border-radius:0 0 50% 50%;z-index:0}
+        .day-bar-text{position:relative;z-index:1}
+        tr.completed .day-bar{border-color:var(--ok);background:var(--ok);color:white}
+        tr.completed .day-bar-fill{display:none}
+        tr.partial .day-bar{border-color:var(--or);color:var(--or)}
+
+        /* Today card input */
+        .tc-input-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+        .tc-page-input{flex:1;padding:10px 14px;border:1.5px solid rgba(255,255,255,.3);border-radius:10px;background:rgba(255,255,255,.15);color:white;font-family:'Quicksand',sans-serif;font-size:16px;font-weight:700;text-align:center;outline:none}
+        .tc-page-input::placeholder{color:rgba(255,255,255,.5);font-weight:500}
+        .tc-page-input:focus{border-color:rgba(255,255,255,.6)}
+        .tc-page-label{font-size:12px;color:rgba(255,255,255,.7)}
 
         /* PAGE SHEET */
         .ps-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250}
@@ -418,7 +427,8 @@ for(let i=0;i<4;i++){const col=document.createElement('div'),table=document.crea
 for(let j=i*30;j<(i+1)*30;j++){const data=schedule[j],dn=j+1,rid=`day-${dn}`,pr=getDayPages(dn),full=pr>=data.pagesForDay&&data.pagesForDay>0;
 const tr=document.createElement('tr');tr.id=rid;if(full)tr.classList.add('completed');else if(pr>0)tr.classList.add('partial');if(dn===todayNum&&todayNum>=1&&todayNum<=120)tr.classList.add('today-row');
 const td=document.createElement('td');
-td.innerHTML=`<div class="row-wrapper"><div class="gun-no">${dn}</div><div class="content-area" data-day="${dn}"><span class="book-title">${data.name}</span><span class="page-range">s.${data.range}</span>${pr>0&&!full?`<span class="page-progress">${pr}/${data.pagesForDay} sayfa</span>`:''}</div><div class="check-box-cell" data-day="${dn}"><div class="check-box"></div></div></div>`;
+const pfd=data.pagesForDay,barPct=pfd>0?Math.round(pr/pfd*100):0;
+td.innerHTML=`<div class="row-wrapper"><div class="gun-no">${dn}</div><div class="content-area" data-day="${dn}"><span class="book-title">${data.name}</span><span class="page-range">s.${data.range}</span>${pr>0&&!full?`<span class="page-progress">${pr}/${pfd} sayfa</span>`:''}</div><div class="check-box-cell" data-day="${dn}"><div class="day-bar" id="bar-${dn}"><div class="day-bar-fill" style="height:${full?100:barPct}%"></div><div class="day-bar-text">${full?'\u2713':barPct>0?barPct+'%':''}</div></div></div></div>`;
 tr.appendChild(td);tbody.appendChild(tr)}
 table.appendChild(tbody);col.appendChild(table);gridContainer.appendChild(col)}
 
@@ -438,9 +448,12 @@ updateRowUI(dn);updateProgress();if(navigator.vibrate)navigator.vibrate(30);
 const now=getCompletedDays().length;if(now===120&&prevCompleted<120)showConfetti();prevCompleted=now;
 if(window.firebaseSync)window.firebaseSync()}
 
-function updateRowUI(dn){const tr=document.getElementById(`day-${dn}`);if(!tr)return;const s=schedule[dn-1],pr=getDayPages(dn),full=pr>=s.pagesForDay&&s.pagesForDay>0;
+function updateRowUI(dn){const tr=document.getElementById(`day-${dn}`);if(!tr)return;const s=schedule[dn-1],pr=getDayPages(dn),full=pr>=s.pagesForDay&&s.pagesForDay>0,barPct=s.pagesForDay>0?Math.round(pr/s.pagesForDay*100):0;
 tr.classList.toggle('completed',full);tr.classList.toggle('partial',pr>0&&!full);
-const ca=tr.querySelector('.content-area');if(ca){let pp=ca.querySelector('.page-progress');if(pr>0&&!full){if(!pp){pp=document.createElement('span');pp.className='page-progress';ca.appendChild(pp)}pp.textContent=`${pr}/${s.pagesForDay} sayfa`}else if(pp)pp.remove()}}
+// Update content area
+const ca=tr.querySelector('.content-area');if(ca){let pp=ca.querySelector('.page-progress');if(pr>0&&!full){if(!pp){pp=document.createElement('span');pp.className='page-progress';ca.appendChild(pp)}pp.textContent=`${pr}/${s.pagesForDay} sayfa`}else if(pp)pp.remove()}
+// Update circular bar
+const bar=document.getElementById(`bar-${dn}`);if(bar){const fill=bar.querySelector('.day-bar-fill'),txt=bar.querySelector('.day-bar-text');if(fill)fill.style.height=(full?100:barPct)+'%';if(txt)txt.textContent=full?'\u2713':barPct>0?barPct+'%':''}}
 
 // ===== PAGE SHEET =====
 let psDay=0;
@@ -476,13 +489,46 @@ function updateProgress(){
     updateTodayCard();
 }
 
+// Find the first day that isn't fully completed
+function getActiveDayNum(){for(let i=1;i<=120;i++){const pr=getDayPages(i),s=schedule[i-1];if(pr<s.pagesForDay)return i}return 121}
+
+// Distribute pages across sequential days starting from first incomplete
+function distributePages(totalInput){
+    let remaining=totalInput;
+    const startDay=getActiveDayNum();
+    for(let i=startDay;i<=120&&remaining>0;i++){
+        const s=schedule[i-1],current=getDayPages(i),needed=s.pagesForDay-current;
+        if(needed<=0)continue;
+        const give=Math.min(remaining,needed);
+        localStorage.setItem(`day-${i}`,String(current+give));
+        updateRowUI(i);
+        remaining-=give;
+    }
+    updateProgress();
+    if(navigator.vibrate)navigator.vibrate(30);
+    const cd=getCompletedDays();if(cd.length===120&&prevCompleted<120)showConfetti();prevCompleted=cd.length;
+    if(window.firebaseSync)window.firebaseSync();
+}
+
 function updateTodayCard(){
     const tc=document.getElementById('todayCard'),dn=todayNum;
     if(dn<1){const diff=Math.ceil((PROGRAM_START-new Date())/(864e5));tc.className='today-card countdown no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">GERI SAYIM</div><div class="tc-title">Programa ${diff} gun kaldi</div><div class="tc-range">Baslangic: 15 Nisan 2025</div>`;return}
     if(dn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127942; Program Tamamlandi!</div><div class="tc-range">${getTotalPagesRead().toLocaleString('tr-TR')} sayfa okudunuz</div>`;return}
-    const s=schedule[dn-1],pr=getDayPages(dn),full=pr>=s.pagesForDay&&s.pagesForDay>0,pct=s.pagesForDay>0?Math.round(pr/s.pagesForDay*100):0;
+    // Find active day (first incomplete)
+    const adn=getActiveDayNum(),s=schedule[Math.min(adn,120)-1],pr=getDayPages(adn),full=adn>120,pct=s.pagesForDay>0?Math.round(pr/s.pagesForDay*100):0;
     tc.className=`today-card${full?' done':''} no-print`;tc.style.display='';
-    tc.innerHTML=`<div class="tc-label">BUGUN - GUN ${dn}</div><div class="tc-title">${s.name}</div><div class="tc-range">Sayfa ${s.range}${pr>0&&!full?' ('+pr+'/'+s.pagesForDay+')':''}</div><div class="tc-bar"><div class="tc-bar-fill" style="width:${pct}%"></div></div>${full?'<div style="text-align:center;font-size:14px">&#9989; Tamamlandi!</div>':`<div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${dn})">&#9989; Tamamla</button><button class="tc-btn tc-enter" onclick="openPageSheet(${dn})">&#9998; Sayfa Gir</button></div>`}`;
+    if(full){tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127942; Tum gunler tamamlandi!</div>`;return}
+    tc.innerHTML=`<div class="tc-label">GUN ${adn}${adn===dn?' - BUGUN':''}</div><div class="tc-title">${s.name}</div><div class="tc-range">Sayfa ${s.range}${pr>0?' ('+pr+'/'+s.pagesForDay+')':''}</div><div class="tc-bar"><div class="tc-bar-fill" style="width:${pct}%"></div></div>
+    <div class="tc-input-row"><input type="number" class="tc-page-input" id="tcPageInput" placeholder="Kac sayfa okudunuz?" min="1"><button class="tc-btn tc-complete" onclick="submitTodayPages()" style="flex:none;width:auto;padding:10px 16px">Kaydet</button></div>
+    <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Gunu Tamamla</button><button class="tc-btn tc-enter" onclick="openPageSheet(${adn})">&#9998; Detayli Gir</button></div>`;
+}
+
+function submitTodayPages(){
+    const inp=document.getElementById('tcPageInput');if(!inp)return;
+    const val=parseInt(inp.value);if(!val||val<1){inp.style.borderColor='#e74c3c';return}
+    distributePages(val);
+    inp.value='';
+    updateTodayCard();
 }
 
 function refreshAllRows(){for(let i=1;i<=120;i++)updateRowUI(i)}
