@@ -369,12 +369,51 @@
             font-size: 20px;
         }
 
+        .ios-guide-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .ios-guide-desc {
+            font-size: 12.5px;
+            color: #888;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .ios-step-content { flex: 1; }
+
+        .ios-step-label {
+            font-weight: 700;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .ios-step-detail {
+            font-size: 12px;
+            color: #777;
+            line-height: 1.4;
+        }
+
+        .ios-share-icon { font-size: 16px; }
+
+        .ios-guide-note {
+            margin-top: 12px;
+            padding: 10px;
+            background: #fff8e1;
+            border-radius: 8px;
+            font-size: 11.5px;
+            color: #8d6e00;
+            line-height: 1.4;
+        }
+
         .ios-guide-close {
             margin-top: 16px;
             background: var(--deep-green);
             color: white;
             border: none;
-            padding: 12px 32px;
+            padding: 14px 32px;
             border-radius: 10px;
             cursor: pointer;
             font-family: 'Quicksand', sans-serif;
@@ -383,23 +422,21 @@
             width: 100%;
         }
 
-        .ios-arrow {
-            position: fixed;
-            bottom: calc(12px + var(--safe-bottom));
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 28px;
-            color: white;
-            animation: bounce 1s infinite;
-            z-index: 301;
-            display: none;
+        .ios-dont-show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+            font-size: 11.5px;
+            color: #999;
+            cursor: pointer;
         }
 
-        .ios-overlay.show .ios-arrow { display: block; }
-
-        @keyframes bounce {
-            0%,100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(8px); }
+        .ios-dont-show input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--deep-green);
         }
 
         /* ===== CONFIRM DIALOG ===== */
@@ -468,20 +505,40 @@
 <!-- iOS Install Guide Overlay -->
 <div class="ios-overlay no-print" id="iosOverlay">
     <div class="ios-guide">
-        <div class="ios-guide-title">Ana Ekrana Nasil Eklenir?</div>
+        <div class="ios-guide-icon">&#128218;</div>
+        <div class="ios-guide-title">Uygulamayi Ana Ekrana Ekleyin!</div>
+        <div class="ios-guide-desc">Bu uygulamayi telefonunuza yuklemek icin asagidaki adimlari takip edin. Yukleme sonrasi internet olmadan da kullanabilirsiniz.</div>
+
         <div class="ios-step">
             <div class="ios-step-num">1</div>
-            <div class="ios-step-text">Alttaki <span class="ios-step-icon">&#x1F4E4;</span> <strong>Paylas</strong> butonuna dokunun</div>
+            <div class="ios-step-content">
+                <div class="ios-step-label">Safari'de Paylas butonuna dokunun</div>
+                <div class="ios-step-detail">Ekranin <strong>en altinda</strong> ortadaki kare ve yukari ok isaretli <span class="ios-share-icon">&#x1F4E4;</span> butona dokunun</div>
+            </div>
         </div>
+
         <div class="ios-step">
             <div class="ios-step-num">2</div>
-            <div class="ios-step-text">Asagi kaydirup <span class="ios-step-icon">&#x2795;</span> <strong>"Ana Ekrana Ekle"</strong> secenegini bulun</div>
+            <div class="ios-step-content">
+                <div class="ios-step-label">Ana Ekrana Ekle secenegini bulun</div>
+                <div class="ios-step-detail">Acilan menude <strong>asagi kaydirun</strong>. <span class="ios-share-icon">&#x2795;</span> <strong>"Ana Ekrana Ekle"</strong> yazisina dokunun</div>
+            </div>
         </div>
+
         <div class="ios-step">
             <div class="ios-step-num">3</div>
-            <div class="ios-step-text">Sag ustteki <strong>"Ekle"</strong> butonuna dokunun</div>
+            <div class="ios-step-content">
+                <div class="ios-step-label">Ekle butonuna dokunun</div>
+                <div class="ios-step-detail">Sag ust kosedeki <strong>"Ekle"</strong> yazisina dokunun. Uygulama ana ekraniniza eklenecek!</div>
+            </div>
         </div>
-        <button class="ios-guide-close" onclick="closeIosGuide()">Anladim</button>
+
+        <div class="ios-guide-note">Not: Bu islem sadece <strong>Safari</strong> tarayicisinda calisir. Chrome veya baska bir tarayici kullaniyorsaniz, linki Safari'de acin.</div>
+
+        <button class="ios-guide-close" onclick="closeIosGuide()">Anladim, Kapat</button>
+        <label class="ios-dont-show">
+            <input type="checkbox" id="iosDontShow"> Bir daha gosterme
+        </label>
     </div>
 </div>
 
@@ -585,12 +642,22 @@
 
     function closeIosGuide() {
         document.getElementById('iosOverlay').classList.remove('show');
+        if (document.getElementById('iosDontShow').checked) {
+            localStorage.setItem('iosGuideDismissed', 'true');
+        }
     }
 
     // Close overlay on background click
     document.getElementById('iosOverlay').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeIosGuide();
     });
+
+    // Auto-show guide on iOS when page loads (if not dismissed and not already installed)
+    if (isIos() && !isInStandaloneMode() && !localStorage.getItem('iosGuideDismissed')) {
+        setTimeout(() => {
+            document.getElementById('iosOverlay').classList.add('show');
+        }, 800);
+    }
 
     // ===== READING SCHEDULE =====
     const books = [
