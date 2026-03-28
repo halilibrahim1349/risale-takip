@@ -296,34 +296,110 @@
         .bottom-btn.active { color: var(--deep-green); }
         .bottom-btn-icon { font-size: 20px; }
 
-        /* ===== iOS install banner ===== */
-        .ios-banner {
+        /* ===== iOS install overlay ===== */
+        .ios-overlay {
             display: none;
-            max-width: 500px;
-            margin: 0 auto 12px auto;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 1px solid #dee2e6;
-            border-radius: 12px;
-            padding: 14px 16px;
-            font-size: 12.5px;
-            color: #555;
-            text-align: center;
-            line-height: 1.5;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 300;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 20px;
+            padding-bottom: calc(20px + var(--safe-bottom));
         }
 
-        .ios-banner strong { color: var(--deep-green); }
-        .ios-banner .close-banner {
-            display: inline-block;
-            margin-top: 8px;
+        .ios-overlay.show { display: flex; }
+
+        .ios-guide {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 20px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(60px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .ios-guide-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--deep-green);
+            margin-bottom: 16px;
+        }
+
+        .ios-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .ios-step:last-of-type { border-bottom: none; }
+
+        .ios-step-num {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            background: var(--deep-green);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .ios-step-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .ios-step-icon {
+            font-size: 20px;
+        }
+
+        .ios-guide-close {
+            margin-top: 16px;
             background: var(--deep-green);
             color: white;
             border: none;
-            padding: 6px 16px;
-            border-radius: 6px;
+            padding: 12px 32px;
+            border-radius: 10px;
             cursor: pointer;
             font-family: 'Quicksand', sans-serif;
-            font-weight: 600;
-            font-size: 11px;
+            font-weight: 700;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .ios-arrow {
+            position: fixed;
+            bottom: calc(12px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 28px;
+            color: white;
+            animation: bounce 1s infinite;
+            z-index: 301;
+            display: none;
+        }
+
+        .ios-overlay.show .ios-arrow { display: block; }
+
+        @keyframes bounce {
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
         }
 
         /* ===== CONFIRM DIALOG ===== */
@@ -389,18 +465,29 @@
     <div class="progress-percentage" id="progressPercent">%0</div>
 </div>
 
-<!-- iOS Install Banner -->
-<div class="ios-banner no-print" id="iosBanner">
-    <strong>Ana Ekrana Eklemek Icin:</strong><br>
-    Alttaki <strong>Paylas</strong> butonuna basin, sonra<br>
-    <strong>"Ana Ekrana Ekle"</strong> secenegine dokunun.
-    <br>
-    <button class="close-banner" onclick="closeIosBanner()">Anladim</button>
+<!-- iOS Install Guide Overlay -->
+<div class="ios-overlay no-print" id="iosOverlay">
+    <div class="ios-guide">
+        <div class="ios-guide-title">Ana Ekrana Nasil Eklenir?</div>
+        <div class="ios-step">
+            <div class="ios-step-num">1</div>
+            <div class="ios-step-text">Alttaki <span class="ios-step-icon">&#x1F4E4;</span> <strong>Paylas</strong> butonuna dokunun</div>
+        </div>
+        <div class="ios-step">
+            <div class="ios-step-num">2</div>
+            <div class="ios-step-text">Asagi kaydirup <span class="ios-step-icon">&#x2795;</span> <strong>"Ana Ekrana Ekle"</strong> secenegini bulun</div>
+        </div>
+        <div class="ios-step">
+            <div class="ios-step-num">3</div>
+            <div class="ios-step-text">Sag ustteki <strong>"Ekle"</strong> butonuna dokunun</div>
+        </div>
+        <button class="ios-guide-close" onclick="closeIosGuide()">Anladim</button>
+    </div>
 </div>
 
 <!-- Action Buttons -->
 <div class="action-menu no-print">
-    <button id="installBtn" class="btn btn-add" style="display:none">Ana Ekrana Ekle</button>
+    <button id="installBtn" class="btn btn-add">Ana Ekrana Ekle</button>
     <button class="btn btn-pdf" onclick="window.print()">PDF Cikti Al</button>
 </div>
 
@@ -452,21 +539,42 @@
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
 
-    // Android / Chrome install prompt
+    function isIos() {
+        return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+    }
+
+    function isInStandaloneMode() {
+        return ('standalone' in window.navigator && window.navigator.standalone)
+            || window.matchMedia('(display-mode: standalone)').matches;
+    }
+
+    // Hide install button if already installed as PWA
+    if (isInStandaloneMode()) {
+        installBtn.style.display = 'none';
+    }
+
+    // Android / Chrome: capture the install prompt
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        installBtn.style.display = 'block';
     });
 
+    // Install button click handler - works for both iOS and Android
     installBtn.addEventListener('click', async () => {
         if (deferredPrompt) {
+            // Android / Chrome - trigger native install
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
             if (outcome === 'accepted') {
                 installBtn.style.display = 'none';
             }
             deferredPrompt = null;
+        } else if (isIos()) {
+            // iOS - show step-by-step guide overlay
+            document.getElementById('iosOverlay').classList.add('show');
+        } else {
+            // Other browsers - show generic instructions
+            document.getElementById('iosOverlay').classList.add('show');
         }
     });
 
@@ -475,23 +583,14 @@
         deferredPrompt = null;
     });
 
-    // iOS detection and banner
-    function isIos() {
-        return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+    function closeIosGuide() {
+        document.getElementById('iosOverlay').classList.remove('show');
     }
 
-    function isInStandaloneMode() {
-        return ('standalone' in window.navigator) && window.navigator.standalone;
-    }
-
-    if (isIos() && !isInStandaloneMode() && !localStorage.getItem('iosBannerClosed')) {
-        document.getElementById('iosBanner').style.display = 'block';
-    }
-
-    function closeIosBanner() {
-        document.getElementById('iosBanner').style.display = 'none';
-        localStorage.setItem('iosBannerClosed', 'true');
-    }
+    // Close overlay on background click
+    document.getElementById('iosOverlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeIosGuide();
+    });
 
     // ===== READING SCHEDULE =====
     const books = [
