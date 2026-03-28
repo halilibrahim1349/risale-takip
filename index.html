@@ -594,17 +594,27 @@ document.getElementById('btnLinkGoogle').addEventListener('click',async()=>{if(!
 
 document.getElementById('btnSignOut').addEventListener('click',async()=>{if(currentUser?.isAnonymous&&!confirm('Anonim hesapsiniz! Cikis yaparsaniz hesabiniz kaybolur.'))return;localStorage.removeItem('anonUid');localStorage.removeItem('deviceUid');await signOut(auth);currentUser=null;document.getElementById('authScreen').classList.remove('hidden')});
 
-onAuthStateChanged(auth,async user=>{if(user){const duid=localStorage.getItem('deviceUid');if(duid&&duid!==user.uid){const os=await getDoc(doc(db,'users',duid)).catch(()=>null);if(os&&os.exists()){await signOut(auth);showAuthError('Bu cihazda zaten bir hesap var.');return}}
-currentUser=user;document.getElementById('authScreen').classList.add('hidden');document.getElementById('authLoading').style.display='none';localStorage.setItem('deviceUid',user.uid);if(user.isAnonymous)localStorage.setItem('anonUid',user.uid);
+onAuthStateChanged(auth,async user=>{if(user){
+currentUser=user;document.getElementById('authScreen').classList.add('hidden');document.getElementById('authLoading').style.display='none';
+localStorage.setItem('deviceUid',user.uid);if(user.isAnonymous)localStorage.setItem('anonUid',user.uid);
 await initUserData(user);startLeaderboard();updateUserProfileUI()}else{currentUser=null;document.getElementById('authScreen').classList.remove('hidden');document.getElementById('nameScreen').classList.remove('show')}});
 
 async function initUserData(user){try{const ref=doc(db,'users',user.uid),snap=await getDoc(ref);
 if(!snap.exists()){const name=pendingAnonName||user.displayName||'Anonim';pendingAnonName=null;
-// Check if name is taken
+// Check if name already exists
 const nq=query(collection(db,'users'),where('displayName','==',name));const ex=await getDocs(nq);
 if(!ex.empty){
-    // Name taken - sign out and show error
-    await signOut(auth);showAuthError('Bu kullanici adi alinmis. Baska bir isim deneyin.');return;
+    // Name exists - reclaim: copy old data to new account, delete old
+    const oldDoc=ex.docs[0],oldData=oldDoc.data();
+    await setDoc(ref,{...oldData,lastActive:serverTimestamp()});
+    await deleteDoc(oldDoc.ref);
+    customDisplayName=name;
+    // Load data into localStorage
+    for(let i=1;i<=120;i++)localStorage.removeItem(`day-${i}`);
+    if(oldData.dayProgress){for(const[k,v]of Object.entries(oldData.dayProgress))localStorage.setItem(`day-${k}`,String(v))}
+    else if(oldData.completedDays){for(const d of oldData.completedDays)localStorage.setItem(`day-${d}`,String(schedule[d-1].pagesForDay))}
+    refreshAllRows();updateProgress();
+    return;
 }
 const dp={},cd=[];let tp=0;for(let i=1;i<=120;i++){const v=getDayPages(i);if(v>0){dp[String(i)]=v;tp+=v;if(v>=schedule[i-1].pagesForDay&&schedule[i-1].pagesForDay>0)cd.push(i)}}
 await setDoc(ref,{displayName:name,photoURL:user.photoURL||null,dayProgress:dp,totalPagesRead:tp,completedDays:cd,totalCompleted:cd.length,currentStreak:calcStreak(cd),longestStreak:calcLongestStreak(cd),lastActive:serverTimestamp(),createdAt:serverTimestamp()});customDisplayName=name}
