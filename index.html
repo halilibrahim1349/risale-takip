@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root{--bg:#fdfaf1;--card:#fff;--card-sh:rgba(0,0,0,0.06);--dg:#6b705c;--dg2:#4a4e3d;--sepia:#f2ede4;--ok:#2ecc71;--ok2:#27ae60;--txt:#333;--txs:#888;--txm:#bbb;--or:#e67e22;--or2:#d35400;--brd:#f0f0f0;--rdone:#f0fdf4;--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px)}
-        [data-theme="dark"]{--bg:#1a1a2e;--card:#16213e;--card-sh:rgba(0,0,0,0.3);--sepia:#1a1a2e;--txt:#e0e0e0;--txs:#8899aa;--txm:#556;--brd:#2a2a4a;--rdone:#1a2e1a}
+        [data-theme="dark"]{--bg:#0f0f1a;--card:#1a1a3e;--card-sh:rgba(0,0,0,0.4);--sepia:#1f1f35;--dg:#8ecae6;--dg2:#219ebc;--ok:#06d6a0;--ok2:#05b88a;--or:#ffb703;--or2:#fb8500;--txt:#f0f0f0;--txs:#94a3b8;--txm:#64748b;--brd:#2d2d5e;--rdone:#0f2f1f}
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
         body{font-family:'Quicksand',sans-serif;background:var(--bg);margin:0;padding:10px;padding-top:calc(10px + var(--safe-t));padding-bottom:calc(70px + var(--safe-b));color:var(--txt);-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
 
@@ -97,49 +97,20 @@
         table{width:100%;border-collapse:collapse;table-layout:fixed}
         td{padding:0;border:.5px solid var(--brd);height:48px;vertical-align:middle;transition:background .2s}
         tr.completed td{background:var(--rdone)}
-        tr.partial td{background:rgba(230,126,34,.04)}
         tr.today-row td{border-left:3px solid var(--or);background:rgba(230,126,34,.08)}
         tr.today-row .gun-no{background:var(--or)!important;color:white}
-        .row-wrapper{display:flex;align-items:center;height:100%;width:100%;user-select:none;-webkit-user-select:none}
+        .row-wrapper{display:flex;align-items:center;height:100%;width:100%;user-select:none;-webkit-user-select:none;cursor:pointer}
+        .row-wrapper:active{background:rgba(107,112,92,.05)}
         .gun-no{background:var(--sepia)!important;color:var(--dg);font-weight:bold;width:42px;min-width:42px;text-align:center;display:flex;align-items:center;justify-content:center;border-right:.5px solid var(--brd);height:100%;font-size:13px;-webkit-print-color-adjust:exact;transition:background .3s}
-        .content-area{flex-grow:1;padding:0 10px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;cursor:pointer}
-        .content-area:active{background:rgba(107,112,92,.04)}
+        .content-area{flex-grow:1;padding:0 10px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
         .book-title{font-weight:bold;font-size:12px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .page-range{color:var(--txs);font-size:11px}
-        .page-progress{font-size:10px;color:var(--or);font-weight:600}
-        .check-box-cell{width:50px;min-width:50px;display:flex;align-items:center;justify-content:center;height:100%;border-left:.5px solid var(--brd);cursor:pointer;flex-direction:column;gap:2px;padding:4px 0}
-        .check-box-cell:active{background:rgba(46,204,113,.08)}
-        .day-bar{width:32px;height:32px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--txm);position:relative;overflow:hidden;transition:all .3s;background:var(--card)}
-        .day-bar-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,var(--or),#f39c12);transition:height .4s ease;border-radius:0 0 50% 50%;z-index:0}
-        .day-bar-text{position:relative;z-index:1}
-        tr.completed .day-bar{border-color:var(--ok);background:var(--ok);color:white}
-        tr.completed .day-bar-fill{display:none}
-        tr.partial .day-bar{border-color:var(--or);color:var(--or)}
+        .check-box-cell{width:42px;min-width:42px;display:flex;align-items:center;justify-content:center;height:100%;border-left:.5px solid var(--brd);cursor:pointer}
+        .day-bar{width:26px;height:26px;border-radius:50%;border:2.5px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;transition:all .3s cubic-bezier(.4,0,.2,1);background:var(--card)}
+        tr.completed .day-bar{border-color:var(--ok);background:var(--ok);transform:scale(1.15);box-shadow:0 2px 8px rgba(46,204,113,.4)}
 
-        /* Today card input */
-        .tc-input-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-        .tc-page-input{flex:1;padding:10px 14px;border:1.5px solid rgba(255,255,255,.3);border-radius:10px;background:rgba(255,255,255,.15);color:white;font-family:'Quicksand',sans-serif;font-size:16px;font-weight:700;text-align:center;outline:none}
-        .tc-page-input::placeholder{color:rgba(255,255,255,.5);font-weight:500}
-        .tc-page-input:focus{border-color:rgba(255,255,255,.6)}
-        .tc-page-label{font-size:12px;color:rgba(255,255,255,.7)}
 
-        /* PAGE SHEET */
-        .ps-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250}
-        .ps-overlay.show{display:flex;align-items:flex-end;justify-content:center}
-        .ps{background:var(--card);border-radius:20px 20px 0 0;padding:16px 24px calc(24px + var(--safe-b));max-width:400px;width:100%;animation:slideUp .3s ease}
         @keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
-        .ps-handle{width:36px;height:4px;background:var(--txm);border-radius:2px;margin:0 auto 16px}
-        .ps-title{font-weight:700;font-size:16px;color:var(--txt);text-align:center}
-        .ps-range{font-size:13px;color:var(--txs);text-align:center;margin-bottom:16px}
-        .ps-input-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px}
-        .ps-btn-round{width:44px;height:44px;border-radius:50%;border:2px solid var(--brd);background:var(--card);font-size:22px;font-weight:700;cursor:pointer;color:var(--txt);display:flex;align-items:center;justify-content:center}
-        .ps-btn-round:active{background:var(--sepia)}
-        .ps-num{width:70px;text-align:center;font-size:28px;font-weight:700;border:2px solid var(--brd);border-radius:12px;padding:8px;font-family:'Quicksand',sans-serif;background:var(--card);color:var(--txt);outline:none}
-        .ps-max{font-size:14px;color:var(--txs);font-weight:600}
-        .ps-slider{width:100%;margin:4px 0 16px;accent-color:var(--dg)}
-        .ps-actions{display:flex;gap:8px}
-        .ps-save{flex:1;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--dg),var(--dg2));color:white;font-family:'Quicksand',sans-serif;font-weight:700;font-size:14px;cursor:pointer}
-        .ps-all{flex:1;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--ok),var(--ok2));color:white;font-family:'Quicksand',sans-serif;font-weight:700;font-size:14px;cursor:pointer}
 
         /* NUDGE */
         .nudge{text-align:center;font-size:12.5px;color:var(--txs);display:none} .nudge strong{color:var(--dg)}
@@ -213,7 +184,24 @@
         @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 
         /* PRINT */
-        @media print{.no-print,.bottom-bar,.today-card,.book-scroll,.auth-screen,.ps-overlay{display:none!important}body{padding:0}.columns{display:grid!important;grid-template-columns:repeat(4,1fr)!important}td{height:23px!important}.container{box-shadow:none}}
+        @media print{
+            @page{size:landscape;margin:5mm}
+            .no-print,.bottom-bar,.today-card,.book-scroll,.auth-screen,.ps-overlay,.kd,.nudge,.action-menu{display:none!important}
+            body{padding:0;background:white;color:#333}
+            .columns{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:2px!important}
+            .container{box-shadow:none;padding:2px;background:white}
+            h2{font-size:12px!important;margin:4px 0!important}
+            table{font-size:10px}
+            td{height:18px!important;border:.5px solid #ddd!important}
+            .gun-no{background:#e8e8e8!important;color:#333!important;font-size:10px!important;width:28px!important;min-width:28px!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+            .book-title{font-size:9px!important}
+            .page-range{font-size:8px!important}
+            .check-box-cell,.day-bar{width:20px!important;min-width:20px!important}
+            .day-bar{width:16px!important;height:16px!important;font-size:7px!important}
+            .day-bar-fill{display:none}
+            tr.completed .day-bar{background:#2ecc71!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+            .page-progress{display:none!important}
+        }
     </style>
 </head>
 <body>
@@ -299,12 +287,12 @@
             <div class="stat-box"><div class="stat-value" id="profileLongest">0</div><div class="stat-label">En Uzun Seri</div></div>
         </div>
         <div class="badge-section"><div class="badge-section-title">Rozetler</div><div class="badge-grid" id="badgeGrid">
-            <div class="badge-item"><div class="badge-icon" id="badge1">&#127793;</div><div class="badge-label">Ilk Adim<br>1 gun</div></div>
-            <div class="badge-item"><div class="badge-icon" id="badge10">&#128293;</div><div class="badge-label">Atesli<br>10 gun</div></div>
-            <div class="badge-item"><div class="badge-icon" id="badge30">&#127793;</div><div class="badge-label">Fidan<br>30 gun</div></div>
+            <div class="badge-item"><div class="badge-icon" id="badge1">&#127793;</div><div class="badge-label">Tohum<br>1 gun</div></div>
+            <div class="badge-item"><div class="badge-icon" id="badge10">&#127807;</div><div class="badge-label">Filiz<br>10 gun</div></div>
+            <div class="badge-item"><div class="badge-icon" id="badge30">&#127794;</div><div class="badge-label">Fidan<br>30 gun</div></div>
             <div class="badge-item"><div class="badge-icon" id="badge60">&#127795;</div><div class="badge-label">Agac<br>60 gun</div></div>
-            <div class="badge-item"><div class="badge-icon" id="badge90">&#11088;</div><div class="badge-label">Yildiz<br>90 gun</div></div>
-            <div class="badge-item"><div class="badge-icon" id="badge120">&#127942;</div><div class="badge-label">Hatim<br>120 gun</div></div>
+            <div class="badge-item"><div class="badge-icon" id="badge90">&#127822;</div><div class="badge-label">Meyve<br>90 gun</div></div>
+            <div class="badge-item"><div class="badge-icon" id="badge120">&#127968;</div><div class="badge-label">Cennet<br>Bahcesi</div></div>
         </div></div>
         <div id="anonWarning" style="display:none;background:#fff8e1;border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:#8d6e00;line-height:1.4;text-align:left">&#9888;&#65039; <strong>Anonim hesaptesiniz.</strong> Google hesabi baglayarak verilerinizi kalici hale getirin.</div>
         <div class="profile-actions">
@@ -323,25 +311,6 @@
 <!-- RESET DIALOG -->
 <div class="overlay" id="resetOverlay"><div class="dialog"><h3>Ilerlemeyi Sifirla</h3><p>Tum okuma ilerlemeniz silinecek.</p><div class="dialog-btns"><button class="dialog-cancel" onclick="closeResetDialog()">Vazgec</button><button class="dialog-confirm" onclick="confirmReset()">Sifirla</button></div></div></div>
 
-<!-- PAGE ENTRY SHEET -->
-<div class="ps-overlay" id="psOverlay">
-    <div class="ps">
-        <div class="ps-handle"></div>
-        <div class="ps-title" id="psTitle">Gun 1 - SOZLER</div>
-        <div class="ps-range" id="psRange">Sayfa 1-30</div>
-        <div class="ps-input-row">
-            <button class="ps-btn-round" id="psMinus">-</button>
-            <input type="number" class="ps-num" id="psNum" min="0" value="0">
-            <span class="ps-max" id="psMax">/ 30</span>
-            <button class="ps-btn-round" id="psPlus">+</button>
-        </div>
-        <input type="range" class="ps-slider" id="psSlider" min="0" value="0">
-        <div class="ps-actions">
-            <button class="ps-save" id="psSave">Kaydet</button>
-            <button class="ps-all" id="psAll">Hepsini Tamamla</button>
-        </div>
-    </div>
-</div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-bar no-print">
@@ -390,7 +359,7 @@ function getCompletedDays(){const d=[];for(let i=1;i<=120;i++)if(getDayPages(i)>
 function getBookProgress(){return books.map((b,bi)=>{let r=0;schedule.forEach((e,idx)=>{if(e.bookIndex===bi)r+=getDayPages(idx+1)});return{name:b.name,total:b.pages,read:r,pct:Math.round(r/b.pages*100)}})}
 function calcStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let k=1;for(let i=s.length-1;i>0;i--)if(s[i]-s[i-1]===1)k++;else break;return k}
 function calcLongestStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let l=1,c=1;for(let i=1;i<s.length;i++)if(s[i]-s[i-1]===1){c++;l=Math.max(l,c)}else c=1;return l}
-function getBadge(t){if(t>=120)return'\u{1F3C6}';if(t>=90)return'\u2B50';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F331}';return''}
+function getBadge(t){if(t>=120)return'\u{1F3E1}';if(t>=90)return'\u{1F34E}';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F332}';if(t>=10)return'\u{1F33F}';if(t>=1)return'\u{1F331}';return''}
 
 // ===== DARK MODE =====
 function applyTheme(d){document.documentElement.setAttribute('data-theme',d?'dark':'light');document.getElementById('metaTheme').content=d?'#1a1a2e':'#6b705c';document.getElementById('btnDark').innerHTML=d?'&#9728;&#65039; Aydinlik Mod':'&#127769; Karanlik Mod';localStorage.setItem('darkMode',d)}
@@ -432,20 +401,17 @@ for(let i=0;i<4;i++){const col=document.createElement('div'),table=document.crea
 for(let j=i*30;j<(i+1)*30;j++){const data=schedule[j],dn=j+1,rid=`day-${dn}`,pr=getDayPages(dn),full=pr>=data.pagesForDay&&data.pagesForDay>0;
 const tr=document.createElement('tr');tr.id=rid;if(full)tr.classList.add('completed');else if(pr>0)tr.classList.add('partial');if(dn===todayNum&&todayNum>=1&&todayNum<=120)tr.classList.add('today-row');
 const td=document.createElement('td');
-const pfd=data.pagesForDay,barPct=pfd>0?Math.round(pr/pfd*100):0;
-td.innerHTML=`<div class="row-wrapper"><div class="gun-no">${dn}</div><div class="content-area" data-day="${dn}"><span class="book-title">${data.name}</span><span class="page-range">s.${data.range}</span>${pr>0&&!full?`<span class="page-progress">${pr}/${pfd} sayfa</span>`:''}</div><div class="check-box-cell" data-day="${dn}"><div class="day-bar" id="bar-${dn}"><div class="day-bar-fill" style="height:${full?100:barPct}%"></div><div class="day-bar-text">${full?'\u2713':barPct>0?barPct+'%':''}</div></div></div></div>`;
+td.innerHTML=`<div class="row-wrapper"><div class="gun-no">${dn}</div><div class="content-area"><span class="book-title">${data.name}</span><span class="page-range">s.${data.range}</span></div><div class="check-box-cell"><div class="day-bar" id="bar-${dn}">${full?'\u2713':''}</div></div></div>`;
 tr.appendChild(td);tbody.appendChild(tr)}
 table.appendChild(tbody);col.appendChild(table);gridContainer.appendChild(col)}
 
-// Event delegation for grid
+// Event delegation for grid - simple toggle on any click
 gridContainer.addEventListener('click',e=>{
-    const chk=e.target.closest('.check-box-cell');
-    const cnt=e.target.closest('.content-area');
-    if(chk){const dn=parseInt(chk.dataset.day);toggleDay(dn)}
-    else if(cnt){const dn=parseInt(cnt.dataset.day);openPageSheet(dn)}
+    const row=e.target.closest('tr[id^="day-"]');
+    if(row){const dn=parseInt(row.id.replace('day-',''));toggleDay(dn)}
 });
 
-// ===== TOGGLE DAY (quick complete) =====
+// ===== TOGGLE DAY =====
 let prevCompleted=getCompletedDays().length;
 function toggleDay(dn){const s=schedule[dn-1],pr=getDayPages(dn),full=pr>=s.pagesForDay&&s.pagesForDay>0;
 if(full)localStorage.removeItem(`day-${dn}`);else localStorage.setItem(`day-${dn}`,String(s.pagesForDay));
@@ -453,31 +419,10 @@ updateRowUI(dn);updateProgress();if(navigator.vibrate)navigator.vibrate(30);
 const now=getCompletedDays().length;if(now===120&&prevCompleted<120)showConfetti();prevCompleted=now;
 if(window.firebaseSync)window.firebaseSync()}
 
-function updateRowUI(dn){const tr=document.getElementById(`day-${dn}`);if(!tr)return;const s=schedule[dn-1],pr=getDayPages(dn),full=pr>=s.pagesForDay&&s.pagesForDay>0,barPct=s.pagesForDay>0?Math.round(pr/s.pagesForDay*100):0;
-tr.classList.toggle('completed',full);tr.classList.toggle('partial',pr>0&&!full);
-// Update content area
-const ca=tr.querySelector('.content-area');if(ca){let pp=ca.querySelector('.page-progress');if(pr>0&&!full){if(!pp){pp=document.createElement('span');pp.className='page-progress';ca.appendChild(pp)}pp.textContent=`${pr}/${s.pagesForDay} sayfa`}else if(pp)pp.remove()}
-// Update circular bar
-const bar=document.getElementById(`bar-${dn}`);if(bar){const fill=bar.querySelector('.day-bar-fill'),txt=bar.querySelector('.day-bar-text');if(fill)fill.style.height=(full?100:barPct)+'%';if(txt)txt.textContent=full?'\u2713':barPct>0?barPct+'%':''}}
+function updateRowUI(dn){const tr=document.getElementById(`day-${dn}`);if(!tr)return;const s=schedule[dn-1],pr=getDayPages(dn),full=pr>=s.pagesForDay&&s.pagesForDay>0;
+tr.classList.toggle('completed',full);tr.classList.remove('partial');
+const bar=document.getElementById(`bar-${dn}`);if(bar)bar.textContent=full?'\u2713':''}
 
-// ===== PAGE SHEET =====
-let psDay=0;
-function openPageSheet(dn){psDay=dn;const s=schedule[dn-1],pr=getDayPages(dn);
-document.getElementById('psTitle').textContent=`Gun ${dn} - ${s.name}`;
-document.getElementById('psRange').textContent=`Sayfa ${s.range}`;
-document.getElementById('psMax').textContent=`/ ${s.pagesForDay}`;
-const inp=document.getElementById('psNum'),sl=document.getElementById('psSlider');
-inp.max=s.pagesForDay;sl.max=s.pagesForDay;inp.value=pr;sl.value=pr;
-document.getElementById('psOverlay').classList.add('show')}
-document.getElementById('psOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)document.getElementById('psOverlay').classList.remove('show')});
-document.getElementById('psMinus').addEventListener('click',()=>{const inp=document.getElementById('psNum'),sl=document.getElementById('psSlider');let v=Math.max(0,parseInt(inp.value)-1);inp.value=v;sl.value=v});
-document.getElementById('psPlus').addEventListener('click',()=>{const inp=document.getElementById('psNum'),sl=document.getElementById('psSlider'),mx=parseInt(inp.max);let v=Math.min(mx,parseInt(inp.value)+1);inp.value=v;sl.value=v});
-document.getElementById('psSlider').addEventListener('input',e=>{document.getElementById('psNum').value=e.target.value});
-document.getElementById('psNum').addEventListener('input',e=>{const mx=parseInt(e.target.max),v=Math.min(mx,Math.max(0,parseInt(e.target.value)||0));e.target.value=v;document.getElementById('psSlider').value=v});
-document.getElementById('psSave').addEventListener('click',()=>{const v=parseInt(document.getElementById('psNum').value)||0;if(v>0)localStorage.setItem(`day-${psDay}`,String(v));else localStorage.removeItem(`day-${psDay}`);
-document.getElementById('psOverlay').classList.remove('show');updateRowUI(psDay);updateProgress();if(window.firebaseSync)window.firebaseSync()});
-document.getElementById('psAll').addEventListener('click',()=>{localStorage.setItem(`day-${psDay}`,String(schedule[psDay-1].pagesForDay));
-document.getElementById('psOverlay').classList.remove('show');updateRowUI(psDay);updateProgress();if(navigator.vibrate)navigator.vibrate(30);if(window.firebaseSync)window.firebaseSync()});
 
 // ===== PROGRESS =====
 function updateProgress(){
@@ -497,47 +442,23 @@ function updateProgress(){
 // Find the first day that isn't fully completed
 function getActiveDayNum(){for(let i=1;i<=120;i++){const pr=getDayPages(i),s=schedule[i-1];if(pr<s.pagesForDay)return i}return 121}
 
-// Distribute pages across sequential days starting from first incomplete
-function distributePages(totalInput){
-    let remaining=totalInput;
-    const startDay=getActiveDayNum();
-    for(let i=startDay;i<=120&&remaining>0;i++){
-        const s=schedule[i-1],current=getDayPages(i),needed=s.pagesForDay-current;
-        if(needed<=0)continue;
-        const give=Math.min(remaining,needed);
-        localStorage.setItem(`day-${i}`,String(current+give));
-        updateRowUI(i);
-        remaining-=give;
-    }
-    updateProgress();
-    if(navigator.vibrate)navigator.vibrate(30);
-    const cd=getCompletedDays();if(cd.length===120&&prevCompleted<120)showConfetti();prevCompleted=cd.length;
-    if(window.firebaseSync)window.firebaseSync();
-}
 
 function updateTodayCard(){
     const tc=document.getElementById('todayCard'),dn=todayNum;
-    if(dn<1){const diff=Math.ceil((PROGRAM_START-new Date())/(864e5));const adn=getActiveDayNum(),as=schedule[Math.min(adn,120)-1],apr=getDayPages(adn),apct=as.pagesForDay>0?Math.round(apr/as.pagesForDay*100):0;
+    const adn=getActiveDayNum();
+    if(dn<1){
+        const diff=Math.ceil((PROGRAM_START-new Date())/(864e5));
+        const as=schedule[Math.min(adn,120)-1],done=adn>120;
+        tc.className='today-card no-print';tc.style.display='';
+        if(done){tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127968; Tum gunler tamamlandi!</div><div class="tc-range">Program 15 Nisan'da basliyor</div>`;return}
+        tc.innerHTML=`<div class="tc-label">PROGRAMA ${diff} GUN KALDI</div><div class="tc-title">Siradaki: Gun ${adn} - ${as.name}</div><div class="tc-range">Sayfa ${as.range}</div>
+        <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Gun ${adn}'i Tamamla</button></div>`;return}
+    if(dn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127968; Program Tamamlandi!</div><div class="tc-range">${getTotalPagesRead().toLocaleString('tr-TR')} sayfa okudunuz</div>`;return}
+    if(adn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127968; Tum gunler tamamlandi!</div>`;return}
+    const s=schedule[adn-1];
     tc.className='today-card no-print';tc.style.display='';
-    tc.innerHTML=`<div class="tc-label">PROGRAMA ${diff} GUN KALDI (15 Nisan)</div><div class="tc-title">Gun ${adn} - ${as.name}</div><div class="tc-range">Sayfa ${as.range}${apr>0?' ('+apr+'/'+as.pagesForDay+')':''}</div><div class="tc-bar"><div class="tc-bar-fill" style="width:${apct}%"></div></div>
-    <div class="tc-input-row"><input type="number" class="tc-page-input" id="tcPageInput" placeholder="Kac sayfa okudunuz?" min="1"><button class="tc-btn tc-complete" onclick="submitTodayPages()" style="flex:none;width:auto;padding:10px 16px">Kaydet</button></div>
-    <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Gunu Tamamla</button><button class="tc-btn tc-enter" onclick="openPageSheet(${adn})">&#9998; Detayli Gir</button></div>`;return}
-    if(dn>120){tc.className='today-card done no-print';tc.style.display='';tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127942; Program Tamamlandi!</div><div class="tc-range">${getTotalPagesRead().toLocaleString('tr-TR')} sayfa okudunuz</div>`;return}
-    // Find active day (first incomplete)
-    const adn=getActiveDayNum(),s=schedule[Math.min(adn,120)-1],pr=getDayPages(adn),full=adn>120,pct=s.pagesForDay>0?Math.round(pr/s.pagesForDay*100):0;
-    tc.className=`today-card${full?' done':''} no-print`;tc.style.display='';
-    if(full){tc.innerHTML=`<div class="tc-label">TEBRIKLER</div><div class="tc-title">&#127942; Tum gunler tamamlandi!</div>`;return}
-    tc.innerHTML=`<div class="tc-label">GUN ${adn}${adn===dn?' - BUGUN':''}</div><div class="tc-title">${s.name}</div><div class="tc-range">Sayfa ${s.range}${pr>0?' ('+pr+'/'+s.pagesForDay+')':''}</div><div class="tc-bar"><div class="tc-bar-fill" style="width:${pct}%"></div></div>
-    <div class="tc-input-row"><input type="number" class="tc-page-input" id="tcPageInput" placeholder="Kac sayfa okudunuz?" min="1"><button class="tc-btn tc-complete" onclick="submitTodayPages()" style="flex:none;width:auto;padding:10px 16px">Kaydet</button></div>
-    <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Gunu Tamamla</button><button class="tc-btn tc-enter" onclick="openPageSheet(${adn})">&#9998; Detayli Gir</button></div>`;
-}
-
-function submitTodayPages(){
-    const inp=document.getElementById('tcPageInput');if(!inp)return;
-    const val=parseInt(inp.value);if(!val||val<1){inp.style.borderColor='#e74c3c';return}
-    distributePages(val);
-    inp.value='';
-    updateTodayCard();
+    tc.innerHTML=`<div class="tc-label">GUN ${adn}${adn===dn?' - BUGUN':adn<dn?' - GERIDE KALDIN':''}</div><div class="tc-title">${s.name}</div><div class="tc-range">Sayfa ${s.range}</div>
+    <div class="tc-actions"><button class="tc-btn tc-complete" onclick="toggleDay(${adn})">&#9989; Tamamla</button></div>`;
 }
 
 function refreshAllRows(){for(let i=1;i<=120;i++)updateRowUI(i)}
@@ -673,7 +594,7 @@ function isInStandaloneMode(){return('standalone' in window.navigator&&window.na
 function getDayPages(dn){const v=localStorage.getItem(`day-${dn}`);if(!v)return 0;if(v==='true')return schedule[dn-1].pagesForDay;const n=parseInt(v);return isNaN(n)?0:Math.min(n,schedule[dn-1].pagesForDay)}
 function calcStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let k=1;for(let i=s.length-1;i>0;i--)if(s[i]-s[i-1]===1)k++;else break;return k}
 function calcLongestStreak(d){if(!d.length)return 0;const s=[...d].sort((a,b)=>a-b);let l=1,c=1;for(let i=1;i<s.length;i++)if(s[i]-s[i-1]===1){c++;l=Math.max(l,c)}else c=1;return l}
-function getBadge(t){if(t>=120)return'\u{1F3C6}';if(t>=90)return'\u2B50';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F331}';return''}
+function getBadge(t){if(t>=120)return'\u{1F3E1}';if(t>=90)return'\u{1F34E}';if(t>=60)return'\u{1F333}';if(t>=30)return'\u{1F332}';if(t>=10)return'\u{1F33F}';if(t>=1)return'\u{1F331}';return''}
 function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
 </script>
 </body>
